@@ -11,6 +11,7 @@ const hodRoutes = require("./routes/hod");
 const deanRoutes = require("./routes/dean");
 const adminRoutes = require("./routes/admin");
 const analyticsRoutes = require("./routes/analytics");
+const reportsRoutes = require("./routes/reports");
 
 dotenv.config();
 
@@ -62,6 +63,11 @@ app.use(
 app.use(
   "/api/analytics",
   analyticsRoutes
+);
+
+app.use(
+  "/api/reports",
+  reportsRoutes
 );
 
 // 404 Handler

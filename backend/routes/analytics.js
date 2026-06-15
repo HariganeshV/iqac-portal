@@ -3,7 +3,11 @@ const express = require("express");
 const router = express.Router();
 
 const {
-  getOverallAnalytics
+  getOverallAnalytics,
+  getDepartmentAnalytics,
+  getSchoolAnalytics,
+  getQuestionAnalytics,
+  getQuestionSummaryAnalytics
 } = require(
   "../controllers/analyticsController"
 );
@@ -19,6 +23,10 @@ const authorize =
     "../middleware/authorize"
   );
 
+// ==============================
+// OVERALL ANALYTICS
+// ==============================
+
 router.get(
   "/overall",
   protect,
@@ -27,6 +35,62 @@ router.get(
     "dean"
   ),
   getOverallAnalytics
+);
+
+// ==============================
+// DEPARTMENT ANALYTICS
+// ==============================
+
+router.get(
+  "/department",
+  protect,
+  authorize(
+    "admin",
+    "dean"
+  ),
+  getDepartmentAnalytics
+);
+
+// ==============================
+// SCHOOL ANALYTICS
+// ==============================
+
+router.get(
+  "/school",
+  protect,
+  authorize(
+    "admin",
+    "dean"
+  ),
+  getSchoolAnalytics
+);
+
+// ==============================
+// QUESTION ANALYTICS
+// ==============================
+
+router.get(
+  "/question",
+  protect,
+  authorize(
+    "admin",
+    "dean"
+  ),
+  getQuestionAnalytics
+);
+
+// ==============================
+// QUESTION SUMMARY ANALYTICS
+// ==============================
+
+router.get(
+  "/question-summary",
+  protect,
+  authorize(
+    "admin",
+    "dean"
+  ),
+  getQuestionSummaryAnalytics
 );
 
 module.exports = router;
