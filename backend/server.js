@@ -7,6 +7,10 @@ const connectDB = require("./config/db");
 // Routes
 const authRoutes = require("./routes/auth");
 const submissionRoutes = require("./routes/submissions");
+const hodRoutes = require("./routes/hod");
+const deanRoutes = require("./routes/dean");
+const adminRoutes = require("./routes/admin");
+const analyticsRoutes = require("./routes/analytics");
 
 dotenv.config();
 
@@ -20,7 +24,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health Check Route
+// Health Check
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
@@ -29,10 +33,39 @@ app.get("/", (req, res) => {
 });
 
 // API Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/submissions", submissionRoutes);
 
-// 404 Route
+app.use(
+  "/api/auth",
+  authRoutes
+);
+
+app.use(
+  "/api/submissions",
+  submissionRoutes
+);
+
+app.use(
+  "/api/hod",
+  hodRoutes
+);
+
+app.use(
+  "/api/dean",
+  deanRoutes
+);
+
+app.use(
+  "/api/admin",
+  adminRoutes
+);
+
+app.use(
+  "/api/analytics",
+  analyticsRoutes
+);
+
+// 404 Handler
+
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -41,8 +74,12 @@ app.use((req, res) => {
 });
 
 // Server Start
-const PORT = process.env.PORT || 5000;
+
+const PORT =
+  process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(
+    `Server running on port ${PORT}`
+  );
 });

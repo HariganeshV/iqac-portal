@@ -1,6 +1,13 @@
 const Submission = require("../models/Submission");
 
-exports.saveSubmission = async (req, res) => {
+// ==============================
+// SAVE DRAFT SUBMISSION
+// ==============================
+
+exports.saveSubmission = async (
+  req,
+  res
+) => {
   try {
     const {
       role,
@@ -8,86 +15,172 @@ exports.saveSubmission = async (req, res) => {
       department,
       quarter,
       year,
+
+      totalQuestions,
+      answeredCount,
+      unansweredCount,
+
       answers,
       tableData,
       status
     } = req.body;
 
-    const submission = await Submission.create({
-      submittedBy: req.user._id,
-      role,
-      school,
-      department,
-      quarter,
-      year,
-      answers,
-      tableData,
-      status:
-        status || "Draft"
-    });
+    const submission =
+      await Submission.create({
+        submittedBy: req.user._id,
+
+        role,
+        school,
+        department,
+        quarter,
+        year,
+
+        totalQuestions:
+          totalQuestions || 0,
+
+        answeredCount:
+          answeredCount || 0,
+
+        unansweredCount:
+          unansweredCount || 0,
+
+        answers:
+          answers || [],
+
+        tableData:
+          tableData || {},
+
+        status:
+          status || "Draft"
+      });
 
     res.status(201).json({
       success: true,
       submission
     });
+
   } catch (error) {
+
     res.status(500).json({
       success: false,
       message: error.message
     });
+
   }
 };
 
-exports.getMySubmissions = async (
-  req,
-  res
-) => {
-  try {
-    const submissions =
-      await Submission.find({
-        submittedBy: req.user._id
-      }).sort({
-        createdAt: -1
+
+// ==============================
+// GET MY SUBMISSIONS
+// ==============================
+
+exports.getMySubmissions =
+  async (req, res) => {
+    try {
+
+      const submissions =
+        await Submission.find({
+          submittedBy: req.user._id
+        }).sort({
+          createdAt: -1
+        });
+
+      res.status(200).json({
+        success: true,
+        count: submissions.length,
+        submissions
       });
 
-    res.json({
-      success: true,
-      submissions
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
-};
+    } catch (error) {
 
-exports.getSubmissionById = async (
-  req,
-  res
-) => {
-  try {
-    const submission =
-      await Submission.findById(
-        req.params.id
-      );
-
-    if (!submission) {
-      return res.status(404).json({
+      res.status(500).json({
         success: false,
-        message:
-          "Submission not found"
+        message: error.message
       });
-    }
 
-    res.json({
-      success: true,
-      submission
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
-};
+    }
+  };
+
+
+// ==============================
+// GET SUBMISSION BY ID
+// ==============================
+
+exports.getSubmissionById =
+  async (req, res) => {
+    try {
+
+      const submission =
+        await Submission.findById(
+          req.params.id
+        ).populate(
+          "submittedBy",
+          "name email role school department designation employeeId"
+        );
+
+      if (!submission) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "Submission not found"
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        submission
+      });
+
+    } catch (error) {
+
+      res.status(500).json({
+        success: false,
+        message: error.message
+      });
+
+    }
+  };
+
+
+// ==============================
+// SUBMIT QUESTIONNAIRE
+// ==============================
+
+exports.submitQuestionnaire =
+  async (req, res) => {
+    try {
+
+      const submission =
+        await Submission.findById(
+          req.params.id
+        );
+
+      if (!submission) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "Submission not found"
+        });
+      }
+
+      submission.status =
+        "Pending HOD Approval";
+
+      await submission.save();
+
+      res.status(200).json({
+        success: true,
+        message:
+          "Questionnaire submitted successfully",
+        submission
+      });
+
+    } catch (error) {
+
+      res.status(500).json({
+        success: false,
+        message: error.message
+      });
+
+    }
+  };

@@ -1,5 +1,27 @@
 const mongoose = require("mongoose");
 
+const answerSchema = new mongoose.Schema(
+  {
+    questionNo: {
+      type: Number,
+      required: true
+    },
+
+    question: {
+      type: String,
+      required: true
+    },
+
+    answer: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null
+    }
+  },
+  {
+    _id: false
+  }
+);
+
 const submissionSchema = new mongoose.Schema(
   {
     submittedBy: {
@@ -10,6 +32,7 @@ const submissionSchema = new mongoose.Schema(
 
     role: {
       type: String,
+      enum: ["faculty", "hod", "dean"],
       required: true
     },
 
@@ -20,7 +43,7 @@ const submissionSchema = new mongoose.Schema(
 
     department: {
       type: String,
-      default: ""
+      required: true
     },
 
     quarter: {
@@ -34,22 +57,24 @@ const submissionSchema = new mongoose.Schema(
       required: true
     },
 
-    status: {
-      type: String,
-      enum: [
-        "Draft",
-        "Pending HOD Approval",
-        "Pending Dean Approval",
-        "Pending Admin Review",
-        "Approved",
-        "Rejected"
-      ],
-      default: "Draft"
+    totalQuestions: {
+      type: Number,
+      default: 0
+    },
+
+    answeredCount: {
+      type: Number,
+      default: 0
+    },
+
+    unansweredCount: {
+      type: Number,
+      default: 0
     },
 
     answers: {
-      type: Object,
-      default: {}
+      type: [answerSchema],
+      default: []
     },
 
     tableData: {
@@ -57,12 +82,32 @@ const submissionSchema = new mongoose.Schema(
       default: {}
     },
 
-    uploadedFiles: [
-      {
-        fileName: String,
-        filePath: String
-      }
-    ],
+    uploadedFiles: {
+      type: Array,
+      default: []
+    },
+
+    status: {
+      type: String,
+      enum: [
+        "Draft",
+
+        // Faculty Workflow
+        "Pending HOD Approval",
+        "Approved by HOD",
+        "Rejected by HOD",
+
+        // HOD Workflow
+        "Pending Dean Review",
+        "Approved by Dean",
+        "Rejected by Dean",
+
+        // Dean Workflow
+        "Pending Admin Review",
+        "Submitted to Admin"
+      ],
+      default: "Draft"
+    },
 
     hodRemarks: {
       type: String,
