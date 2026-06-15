@@ -133,7 +133,35 @@ exports.getAllSubmissions =
     try {
 
       const submissions =
-        await Submission.find()
+        await Submission.find({
+          $or: [
+
+            {
+              role: "faculty",
+              status:
+                "Approved by HOD"
+            },
+
+            {
+              role: "hod",
+              status:
+                "Approved by Dean"
+            },
+
+            {
+              role: "dean",
+              status:
+                "Pending Admin Review"
+            },
+
+            {
+              role: "dean",
+              status:
+                "Submitted to Admin"
+            }
+
+          ]
+        })
           .populate(
             "submittedBy",
             "name email role school department"

@@ -12,6 +12,7 @@ const deanRoutes = require("./routes/dean");
 const adminRoutes = require("./routes/admin");
 const analyticsRoutes = require("./routes/analytics");
 const reportsRoutes = require("./routes/reports");
+const excelRoutes = require("./routes/excel");
 
 dotenv.config();
 
@@ -35,40 +36,21 @@ app.get("/", (req, res) => {
 
 // API Routes
 
-app.use(
-  "/api/auth",
-  authRoutes
-);
+app.use("/api/auth", authRoutes);
 
-app.use(
-  "/api/submissions",
-  submissionRoutes
-);
+app.use("/api/submissions", submissionRoutes);
 
-app.use(
-  "/api/hod",
-  hodRoutes
-);
+app.use("/api/hod", hodRoutes);
 
-app.use(
-  "/api/dean",
-  deanRoutes
-);
+app.use("/api/dean", deanRoutes);
 
-app.use(
-  "/api/admin",
-  adminRoutes
-);
+app.use("/api/admin", adminRoutes);
 
-app.use(
-  "/api/analytics",
-  analyticsRoutes
-);
+app.use("/api/analytics", analyticsRoutes);
 
-app.use(
-  "/api/reports",
-  reportsRoutes
-);
+app.use("/api/reports", reportsRoutes);
+
+app.use("/api/excel", excelRoutes);
 
 // 404 Handler
 

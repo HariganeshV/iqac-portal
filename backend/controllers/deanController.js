@@ -146,6 +146,44 @@ exports.getHodSubmissions =
     }
   };
 
+// ==============================
+// FACULTY REVIEW
+// ==============================
+
+exports.getFacultySubmissions =
+  async (req, res) => {
+    try {
+
+      const submissions =
+        await Submission.find({
+          role: "faculty",
+          status:
+            "Approved by HOD"
+        })
+          .populate(
+            "submittedBy",
+            "name email school department designation employeeId"
+          )
+          .sort({
+            createdAt: -1
+          });
+
+      res.status(200).json({
+        success: true,
+        count: submissions.length,
+        submissions
+      });
+
+    } catch (error) {
+
+      res.status(500).json({
+        success: false,
+        message:
+          error.message
+      });
+
+    }
+  };
 
 // ==============================
 // APPROVE HOD SUBMISSION

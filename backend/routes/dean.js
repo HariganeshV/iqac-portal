@@ -6,7 +6,10 @@ const {
   saveDeanSubmission,
   getMyDeanSubmissions,
   submitDeanSubmission,
+
+  getFacultySubmissions,
   getHodSubmissions,
+
   approveSubmission,
   rejectSubmission
 } = require(
@@ -18,7 +21,6 @@ const {
 } = require(
   "../middleware/auth"
 );
-
 
 // ==============================
 // DEAN QUESTIONNAIRE
@@ -48,12 +50,19 @@ router.put(
   submitDeanSubmission
 );
 
+// ==============================
+// FACULTY REVIEW
+// ==============================
+
+router.get(
+  "/faculty-submissions",
+  protect,
+  getFacultySubmissions
+);
 
 // ==============================
 // HOD REVIEW
 // ==============================
-
-// View HOD Submissions
 
 router.get(
   "/hod-submissions",
@@ -61,7 +70,7 @@ router.get(
   getHodSubmissions
 );
 
-// Approve HOD Submission
+// Approve Submission
 
 router.put(
   "/approve/:id",
@@ -69,7 +78,7 @@ router.put(
   approveSubmission
 );
 
-// Reject HOD Submission
+// Reject Submission
 
 router.put(
   "/reject/:id",
