@@ -9,6 +9,7 @@ exports.saveSubmission = async (
   res
 ) => {
   try {
+
     const {
       role,
       school,
@@ -26,36 +27,65 @@ exports.saveSubmission = async (
     } = req.body;
 
     const submission =
-      await Submission.create({
-        submittedBy: req.user._id,
+      await Submission.findOneAndUpdate(
 
-        role,
-        school,
-        department,
-        quarter,
-        year,
+        {
+          submittedBy:
+            req.user._id,
 
-        totalQuestions:
-          totalQuestions || 0,
+          quarter,
 
-        answeredCount:
-          answeredCount || 0,
+          year
+        },
 
-        unansweredCount:
-          unansweredCount || 0,
+         {
+  submittedBy:
+    req.user._id,
 
-        answers:
-          answers || [],
+  facultyName:
+    req.user.name,
 
-        tableData:
-          tableData || {},
+  facultyEmail:
+    req.user.email,
 
-        status:
-          status || "Draft"
-      });
+  role,
+  school,
+  department,
 
-    res.status(201).json({
+  quarter,
+  year,
+
+  totalQuestions:
+    totalQuestions || 0,
+
+  answeredCount:
+    answeredCount || 0,
+
+  unansweredCount:
+    unansweredCount || 0,
+
+  answers:
+    answers || [],
+
+  tableData:
+    tableData || {},
+
+  status:
+    status || "Draft"
+},
+
+        {
+          new: true,
+          upsert: true,
+          runValidators: true
+        }
+
+      );
+
+    res.status(200).json({
       success: true,
+      message:
+        "Submission saved successfully",
       submission
     });
 
@@ -63,7 +93,8 @@ exports.saveSubmission = async (
 
     res.status(500).json({
       success: false,
-      message: error.message
+      message:
+        error.message
     });
 
   }
@@ -183,4 +214,93 @@ exports.submitQuestionnaire =
       });
 
     }
+  };
+
+// ==============================
+// UPDATE SUBMISSION
+// ==============================
+
+exports.updateSubmission =
+  async (req, res) => {
+
+    try {
+
+      const submission =
+        await Submission.findById(
+          req.params.id
+        );
+
+      if (!submission) {
+
+        return res.status(404).json({
+          success: false,
+          message:
+            "Submission not found"
+        });
+
+      }
+
+      submission.answers =
+        req.body.answers || [];
+
+      submission.tableData =
+        req.body.tableData || {};
+
+      submission.totalQuestions =
+        req.body.totalQuestions || 0;
+
+      submission.answeredCount =
+        req.body.answeredCount || 0;
+
+      submission.unansweredCount =
+        req.body.unansweredCount || 0;
+
+      submission.school =
+        req.body.school;
+
+      submission.department =
+        req.body.department;
+
+      submission.facultyName =
+        req.user.name;
+
+      submission.facultyEmail =
+        req.user.email;
+
+      // Re-submit to HOD
+
+      submission.status =
+        "Pending HOD Approval";
+
+      // Clear old rejection reason
+
+      submission.hodRemarks =
+        "";
+
+      await submission.save();
+
+      res.status(200).json({
+
+        success: true,
+
+        message:
+          "Submission updated successfully",
+
+        submission
+
+      });
+
+    } catch (error) {
+
+      res.status(500).json({
+
+        success: false,
+
+        message:
+          error.message
+
+      });
+
+    }
+
   };

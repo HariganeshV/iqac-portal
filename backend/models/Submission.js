@@ -30,6 +30,16 @@ const submissionSchema = new mongoose.Schema(
       required: true
     },
 
+    facultyName: {
+  type: String,
+  required: true
+},
+
+facultyEmail: {
+  type: String,
+  required: true
+},
+
     role: {
       type: String,
       enum: ["faculty", "hod", "dean"],
@@ -122,6 +132,23 @@ const submissionSchema = new mongoose.Schema(
   {
     timestamps: true
   }
+);
+
+// Prevent duplicate submissions
+submissionSchema.index(
+  {
+    submittedBy: 1,
+    quarter: 1,
+    year: 1
+  },
+  {
+    unique: true
+  }
+);
+
+module.exports = mongoose.model(
+  "Submission",
+  submissionSchema
 );
 
 module.exports = mongoose.model(

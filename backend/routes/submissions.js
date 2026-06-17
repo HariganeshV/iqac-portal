@@ -6,7 +6,8 @@ const {
   saveSubmission,
   getMySubmissions,
   getSubmissionById,
-  submitQuestionnaire
+  submitQuestionnaire,
+  updateSubmission
 } = require(
   "../controllers/submissionController"
 );
@@ -47,6 +48,12 @@ router.put(
   "/submit/:id",
   protect,
   submitQuestionnaire
+);
+
+router.put(
+  "/update/:id",
+  protect,
+  updateSubmission
 );
 
 module.exports = router;
