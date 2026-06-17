@@ -19,6 +19,10 @@ from "./pages/faculty/SubmissionStatus";
 import HodDashboard
 from "./pages/hod/HodDashboard";
 
+import FacultyReview from "./pages/hod/FacultyReview";
+import ApprovedReviews from "./pages/hod/ApprovedReviews";
+import RejectedReviews from "./pages/hod/RejectedReviews";
+
 import DeanDashboard
 from "./pages/dean/DeanDashboard";
 
@@ -86,6 +90,21 @@ function App() {
           <HodDashboard />
         }
       />
+
+      <Route
+  path="/hod/faculty-review"
+  element={<FacultyReview />}
+/>
+
+<Route
+  path="/hod/approved-reviews"
+  element={<ApprovedReviews />}
+/>
+
+<Route
+  path="/hod/rejected-reviews"
+  element={<RejectedReviews />}
+/>
 
       <Route
         path="/dean/dashboard"

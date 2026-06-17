@@ -113,41 +113,83 @@ exports.submitHodSubmission =
     }
   };
 
-
 // ==============================
 // VIEW FACULTY SUBMISSIONS
 // ==============================
 
 exports.getFacultySubmissions =
   async (req, res) => {
+
     try {
+
+      console.log(
+        "HOD Department:",
+        req.user.department
+      );
+
       const submissions =
         await Submission.find({
+
           role: "faculty",
-          status:
-            "Pending HOD Approval"
+
+          department:
+            req.user.department,
+
+          status: {
+            $in: [
+
+              "Pending HOD Approval",
+
+              "Approved by HOD",
+
+              "Rejected by HOD"
+
+            ]
+          }
+
         })
-          .populate(
-            "submittedBy",
-            "name email school department designation employeeId"
-          )
-          .sort({
-            createdAt: -1
-          });
+
+        .populate(
+          "submittedBy",
+          "name email department school"
+        )
+
+        .sort({
+          createdAt: -1
+        });
 
       res.status(200).json({
-        success: true,
-        count: submissions.length,
-        submissions
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message
-      });
-    }
-  };
 
+        success: true,
+
+        count:
+          submissions.length,
+
+        submissions
+
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+
+        success: false,
+
+        message:
+          error.message
+
+      });
+
+    }
+
+    console.log(
+  "Logged HOD Department:",
+  req.user.department
+);
+
+  };
 
 // ==============================
 // APPROVE FACULTY SUBMISSION
