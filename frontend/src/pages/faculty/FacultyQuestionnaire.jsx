@@ -20,10 +20,13 @@ import NavigationButtons from "../../components/questionnaire/NavigationButtons"
 import {
   saveSubmission,
   updateSubmission,
-  getSubmissionById
+  getSubmissionById,
+  getMySubmissions
 } from "../../api/submissionApi";
 
-import { useAuth } from "../../context/AuthContext";
+import {
+  useAuth
+} from "../../context/AuthContext";
 
 function FacultyQuestionnaire() {
 
@@ -51,7 +54,12 @@ setIsEditMode] =
   const [answers, setAnswers] =
     useState({});
 
-  useEffect(() => {
+  const [submissions, setSubmissions] =
+  useState([]);
+
+   useEffect(() => {
+
+  loadSubmissions();
 
   if (id) {
 
@@ -86,15 +94,35 @@ const loadSubmission =
         (item) => {
 
           loadedAnswers[
-            item.question
-          ] =
-            item.answer;
+  item.questionNo
+] =
+  item.answer;
 
         }
       );
 
       setAnswers(
         loadedAnswers
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+    }
+
+  };
+
+  const loadSubmissions =
+  async () => {
+
+    try {
+
+      const response =
+        await getMySubmissions();
+
+      setSubmissions(
+        response.data.submissions || []
       );
 
     } catch (error) {
@@ -183,58 +211,53 @@ const loadSubmission =
 
 };
 
-  const handleSaveDraft = () => {
-
-    if (!selectedQuarter) {
-
-      alert(
-        "Please Select Quarter"
-      );
-
-      return;
-    }
-
-    localStorage.setItem(
-
-      `facultyDraft_${selectedQuarter}`,
-
-      JSON.stringify(
-        answers
-      )
-    );
-
-    alert(
-  "Response Saved Successfully"
-);
-
-navigate(
-  "/faculty/submissions"
-);
-  };
-
- const handleSubmit =
+const handleSaveDraft =
   async () => {
 
     try {
 
-      if (
-        Object.keys(
-          answers
-        ).length === 0
-      ) {
+      if (!selectedQuarter) {
 
         alert(
-          "Please answer at least one question"
+          "Please Select Quarter"
         );
 
         return;
 
       }
-    console.log("USER =", user);
 
-console.log("SCHOOL =", user?.school);
+      const formattedAnswers =
+  Object.entries(answers).map(
+    ([key, value]) => {
 
-console.log("DEPARTMENT =", user?.department);
+      const [sectionNo, questionIndex] =
+        key.split("_");
+
+      const section =
+        facultyQuestions.find(
+          item =>
+            String(item.sectionNo) ===
+            String(sectionNo)
+        );
+
+      const questionObj =
+        section?.questions[
+          Number(questionIndex)
+        ];
+
+      return {
+
+        questionNo: key,
+
+        question:
+          questionObj?.question || key,
+
+        answer: value
+
+      };
+
+    }
+  );
 
       const payload = {
 
@@ -266,25 +289,148 @@ console.log("DEPARTMENT =", user?.department);
             answers
           ).length,
 
-        answers:
-          Object.entries(
+        answers: formattedAnswers,
+
+        status:
+          "Draft"
+
+      };
+
+      let response;
+
+      if (
+        isEditMode
+      ) {
+
+        response =
+          await updateSubmission(
+            id,
+            payload
+          );
+
+      } else {
+
+        response =
+          await saveSubmission(
+            payload
+          );
+
+      }
+
+      console.log(
+        response.data
+      );
+
+      alert(
+        "Response Saved Successfully"
+      );
+
+      navigate(
+        "/faculty/submissions"
+      );
+
+    } catch (error) {
+
+      console.error(
+        error
+      );
+
+      alert(
+        "Draft Save Failed"
+      );
+
+    }
+
+  };
+
+ const handleSubmit =
+  async () => {
+
+    try {
+
+      if (
+        Object.keys(
+          answers
+        ).length === 0
+      ) {
+
+        alert(
+          "Please answer at least one question"
+        );
+
+        return;
+
+      }
+    console.log("USER =", user);
+
+console.log("SCHOOL =", user?.school);
+
+console.log("DEPARTMENT =", user?.department);
+      
+     const formattedAnswers =
+  Object.entries(answers).map(
+    ([key, value]) => {
+
+      const [sectionNo, questionIndex] =
+        key.split("_");
+
+      const section =
+        facultyQuestions.find(
+          item =>
+            String(item.sectionNo) ===
+            String(sectionNo)
+        );
+
+      const questionObj =
+        section?.questions[
+          Number(questionIndex)
+        ];
+
+      return {
+
+        questionNo: key,
+
+        question:
+          questionObj?.question || key,
+
+        answer: value
+
+      };
+
+    }
+  );
+
+      const payload = {
+
+        role: "faculty",
+
+        school:
+          user?.school,
+
+        department:
+          user?.department,
+
+        quarter:
+          selectedQuarter,
+
+        year:
+          new Date().getFullYear(),
+
+        totalQuestions:
+          facultyQuestions.length,
+
+        answeredCount:
+          Object.keys(
             answers
-          ).map(
-            (
-              [key, value]
-            ) => ({
+          ).length,
 
-              questionNo:
-                0,
+        unansweredCount:
+          facultyQuestions.length -
+          Object.keys(
+            answers
+          ).length,
 
-              question:
-                key,
-
-              answer:
-                value
-
-            })
-          ),
+        answers: formattedAnswers,
 
         status:
           "Pending HOD Approval"
@@ -399,19 +545,40 @@ navigate(
           </p>
 
           <select
-            value={selectedQuarter}
-            onChange={(e) =>
-              setSelectedQuarter(
-                e.target.value
-              )
-            }
-            style={{
-              width: "100%",
-              padding: "15px",
-              marginTop: "20px",
-              borderRadius: "8px"
-            }}
-          >
+  value={selectedQuarter}
+  onChange={(e) => {
+
+    const quarter =
+      e.target.value;
+
+    const existingSubmission =
+      submissions.find(
+        (item) =>
+          item.quarter === quarter
+      );
+
+    if (existingSubmission) {
+
+      navigate(
+        "/faculty/submissions"
+      );
+
+      return;
+
+    }
+
+    setSelectedQuarter(
+      quarter
+    );
+
+  }}
+  style={{
+    width: "100%",
+    padding: "15px",
+    marginTop: "20px",
+    borderRadius: "8px"
+  }}
+>
 
             <option value="">
               Select Quarter

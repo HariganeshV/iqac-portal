@@ -344,67 +344,125 @@ function FacultyReview() {
             >
 
               <h2>
-                Faculty Answers
-              </h2>
+  Faculty Answers
+</h2>
 
+<div
+  style={{
+    marginBottom: "20px",
+    background: "#f3f4f6",
+    padding: "15px",
+    borderRadius: "8px"
+  }}
+>
+  <p>
+    <strong>Faculty :</strong>
+    {" "}
+    {selectedSubmission.facultyName}
+  </p>
+
+  <p>
+    <strong>Email :</strong>
+    {" "}
+    {selectedSubmission.facultyEmail}
+  </p>
+
+  <p>
+    <strong>Quarter :</strong>
+    {" "}
+    {selectedSubmission.quarter}
+  </p>
+
+  <p>
+    <strong>Total Questions :</strong>
+    {" "}
+    {selectedSubmission.totalQuestions}
+  </p>
+
+  <p>
+    <strong>Answered :</strong>
+    {" "}
+    {selectedSubmission.answeredCount}
+  </p>
+
+  <p>
+    <strong>Unanswered :</strong>
+    {" "}
+    {selectedSubmission.unansweredCount}
+  </p>
+
+</div>
+
+<table
+  style={{
+    width: "100%",
+    borderCollapse: "collapse"
+  }}
+>
+  <thead>
+
+    <tr>
+
+       <th style={thStyle}>
+         Question Key
+       </th>
+
+      <th style={thStyle}>
+        Answer
+      </th>
+
+    </tr>
+
+  </thead>
+
+  <tbody>
+
+    {
+      selectedSubmission.answers?.map(
+        (answer, index) => (
+
+          <tr key={index}>
+
+            <td style={tdStyle}>
               {
-
-                selectedSubmission.answers?.map(
-                  (
-                    answer,
-                    index
-                  ) => (
-
-                    <div
-                      key={
-                        index
-                      }
-                      style={{
-                        marginBottom:
-                          "15px",
-                        borderBottom:
-                          "1px solid #ddd",
-                        paddingBottom:
-                          "10px"
-                      }}
-                    >
-
-                      <strong>
-                        {
-                          answer.question
-                        }
-                      </strong>
-
-                      <p>
-                        {
-                          String(
-                            answer.answer
-                          )
-                        }
-                      </p>
-
-                    </div>
-
-                  )
-                )
-
+                answer.question
               }
+            </td>
 
-              <button
-                onClick={() =>
-                  setSelectedSubmission(
-                    null
-                  )
-                }
-                style={{
-                  marginTop:
-                    "15px",
-                  padding:
-                    "10px 20px"
-                }}
-              >
-                Close
-              </button>
+            <td style={tdStyle}>
+              {
+                answer.answer
+                  ? String(answer.answer)
+                  : "Not Answered"
+              }
+            </td>
+
+          </tr>
+
+        )
+      )
+    }
+
+  </tbody>
+
+</table>
+      
+         <button
+  onClick={() =>
+    setSelectedSubmission(null)
+  }
+  style={{
+    marginTop: "20px",
+    background: "#dc2626",
+    color: "white",
+    border: "none",
+    padding: "10px 20px",
+    borderRadius: "6px",
+    cursor: "pointer"
+  }}
+>
+  Close
+</button>
 
             </div>
 

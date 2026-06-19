@@ -7,7 +7,8 @@ const {
   getMySubmissions,
   getSubmissionById,
   submitQuestionnaire,
-  updateSubmission
+  updateSubmission,
+  downloadPDF
 } = require(
   "../controllers/submissionController"
 );
@@ -32,6 +33,14 @@ router.get(
   "/my",
   protect,
   getMySubmissions
+);
+
+// PDF Download Route
+
+router.get(
+  "/download/:id",
+  protect,
+  downloadPDF
 );
 
 // Get Submission By ID

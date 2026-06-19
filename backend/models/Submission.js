@@ -2,10 +2,10 @@ const mongoose = require("mongoose");
 
 const answerSchema = new mongoose.Schema(
   {
-    questionNo: {
-      type: Number,
-      required: true
-    },
+   questionNo: {
+  type: String,
+  required: true
+},
 
     question: {
       type: String,

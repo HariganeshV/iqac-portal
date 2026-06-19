@@ -1,5 +1,15 @@
 const Submission = require("../models/Submission");
 
+const path = require("path");
+
+const generatePDF =
+  require("../utils/exportPDF");
+
+const facultyQuestions =
+  require(
+    "../data/facultyQuestions"
+  );
+
 // ==============================
 // SAVE DRAFT SUBMISSION
 // ==============================
@@ -270,7 +280,8 @@ exports.updateSubmission =
       // Re-submit to HOD
 
       submission.status =
-        "Pending HOD Approval";
+  req.body.status ||
+  "Pending HOD Approval";
 
       // Clear old rejection reason
 
@@ -299,6 +310,49 @@ exports.updateSubmission =
         message:
           error.message
 
+      });
+
+    }
+
+  };
+
+// ==============================
+// PDF EXPORT
+// ==============================
+  exports.downloadPDF =
+  async (req, res) => {
+
+    try {
+
+      const submission =
+        await Submission.findById(
+          req.params.id
+        );
+
+      if (!submission) {
+
+        return res
+          .status(404)
+          .json({
+            success: false,
+            message:
+              "Submission not found"
+          });
+
+      }
+
+      generatePDF(
+        res,
+        submission,
+        facultyQuestions
+      );
+
+    } catch (error) {
+
+      res.status(500).json({
+        success: false,
+        message:
+          error.message
       });
 
     }

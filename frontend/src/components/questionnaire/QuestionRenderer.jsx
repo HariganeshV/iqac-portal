@@ -142,46 +142,72 @@ function QuestionRenderer({
       );
 
     case "PDF Upload":
-    case "PDF/Word Upload":
-      return (
-        <input
-          type="file"
-          accept=".pdf,.doc,.docx"
-          onChange={(e) =>
-            onChange(
-              e.target.files[0]
-            )
+case "PDF/Word Upload":
+  return (
+    <>
+      {value && (
+        <div
+          style={{
+            marginBottom:"10px",
+            color:"green",
+            fontWeight:"600"
+          }}
+        >
+          Current File :
+          {
+            typeof value === "string"
+              ? value
+              : value?.name
           }
-          style={inputStyle}
-        />
-      );
+        </div>
+      )}
 
-    case "Image Upload":
-    case "Image Upload (JPG/JPEG/PNG)":
-      return (
-        <input
-          type="file"
-          accept=".jpg,.jpeg,.png"
-          onChange={(e) =>
-            onChange(
-              e.target.files[0]
-            )
-          }
-          style={inputStyle}
-        />
-      );
+      <input
+        type="file"
+        accept=".pdf,.doc,.docx"
+        onChange={(e) =>
+          onChange(
+            e.target.files[0]?.name
+          )
+        }
+        style={inputStyle}
+      />
+    </>
+  );
 
-    default:
-      return (
-        <input
-          type="text"
-          value={value || ""}
-          onChange={(e) =>
-            onChange(e.target.value)
+     case "Image Upload":
+case "Image Upload (JPG/JPEG/PNG)":
+  return (
+    <>
+      {value && (
+        <div
+          style={{
+            marginBottom:"10px",
+            color:"green",
+            fontWeight:"600"
+          }}
+        >
+          Current File :
+          {
+            typeof value === "string"
+              ? value
+              : value?.name
           }
-          style={inputStyle}
-        />
-      );
+        </div>
+      )}
+
+      <input
+        type="file"
+        accept=".jpg,.jpeg,.png"
+        onChange={(e) =>
+          onChange(
+            e.target.files[0]?.name
+          )
+        }
+        style={inputStyle}
+      />
+    </>
+  );
   }
 }
 

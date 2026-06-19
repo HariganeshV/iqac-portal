@@ -4,8 +4,10 @@ import { useNavigate } from "react-router-dom";
 import FacultyLayout from "../../layouts/FacultyLayout";
 
 import {
-  getMySubmissions
+  getMySubmissions,
+  downloadPDF
 } from "../../api/submissionApi";
+
 
 function SubmissionStatus() {
 
@@ -120,6 +122,63 @@ function SubmissionStatus() {
       };
 
     };
+
+  const handleDownload =
+  async (
+    submissionId,
+    quarter
+  ) => {
+
+    try {
+
+      const response =
+        await downloadPDF(
+          submissionId
+        );
+
+      const blob =
+        new Blob(
+          [response.data],
+          {
+            type:
+              "application/pdf"
+          }
+        );
+
+      const url =
+        window.URL.createObjectURL(
+          blob
+        );
+
+      const link =
+        document.createElement(
+          "a"
+        );
+
+      link.href = url;
+
+      link.download =
+        `${quarter}.pdf`;
+
+      document.body.appendChild(
+        link
+      );
+
+      link.click();
+
+      link.remove();
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "PDF Download Failed"
+      );
+
+    }
+
+  };
 
   const handleEdit =
     (submissionId) => {
@@ -348,37 +407,57 @@ function SubmissionStatus() {
                           }
                         >
 
-                          {
+                      {
+  info.submissionId && (
 
-                            info.submissionId && (
+    <div
+      style={{
+        display: "flex",
+        gap: "8px"
+      }}
+    >
 
-                              <button
-                                onClick={() =>
-                                  handleEdit(
-                                    info.submissionId
-                                  )
-                                }
-                                style={{
-                                  background:
-                                    "#2563eb",
-                                  color:
-                                    "#fff",
-                                  border:
-                                    "none",
-                                  padding:
-                                    "8px 15px",
-                                  borderRadius:
-                                    "6px",
-                                  cursor:
-                                    "pointer"
-                                }}
-                              >
-                                Edit
-                              </button>
+      <button
+        onClick={() =>
+          handleEdit(
+            info.submissionId
+          )
+        }
+        style={{
+          background:"#2563eb",
+          color:"#fff",
+          border:"none",
+          padding:"8px 15px",
+          borderRadius:"6px",
+          cursor:"pointer"
+        }}
+      >
+        Edit
+      </button>
 
-                            )
+      <button
+        onClick={() =>
+          handleDownload(
+            info.submissionId,
+            quarter
+          )
+        }
+        style={{
+          background:"#16a34a",
+          color:"#fff",
+          border:"none",
+          padding:"8px 15px",
+          borderRadius:"6px",
+          cursor:"pointer"
+        }}
+      >
+        PDF
+      </button>
 
-                          }
+    </div>
+
+  )
+}
 
                         </td>
 

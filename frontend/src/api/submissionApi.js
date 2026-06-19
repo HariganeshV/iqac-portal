@@ -86,4 +86,13 @@ export const submitQuestionnaire =
       `/submissions/submit/${id}`
     );
 
+export const downloadPDF =
+  (id) =>
+    API.get(
+      `/submissions/download/${id}`,
+      {
+        responseType: "blob"
+      }
+    );
+
 export default API;
