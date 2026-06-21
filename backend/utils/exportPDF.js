@@ -1,4 +1,6 @@
 const PDFDocument = require("pdfkit");
+const path = require("path");
+const fs = require("fs");
 
 const generatePDF = (
   res,
@@ -25,6 +27,10 @@ const generatePDF = (
 
   doc.pipe(res);
 
+  // ======================
+  // HEADER
+  // ======================
+
   doc
     .fontSize(20)
     .text("SRIHER IQAC Report");
@@ -36,6 +42,10 @@ const generatePDF = (
   doc.text(
     `Faculty Name : ${submission.facultyName}`
   );
+  
+  doc.text(
+  `School : ${submission.school || "N/A"}`
+);
 
   doc.text(
     `Department : ${submission.department}`
@@ -51,6 +61,10 @@ const generatePDF = (
 
   doc.moveDown();
 
+  // ======================
+  // ANSWER MAP
+  // ======================
+
   const answerMap = {};
 
   submission.answers.forEach(
@@ -61,6 +75,10 @@ const generatePDF = (
 
     }
   );
+
+  // ======================
+  // QUESTIONS
+  // ======================
 
   facultyQuestions.forEach(
     (section) => {
@@ -103,21 +121,91 @@ const generatePDF = (
             `Question : ${question.question}`
           );
 
-          doc.text(
-            `Answer : ${
-              answer
-                ? String(answer)
-                : "Not Answered"
-            }`
-          );
+          // ======================
+          // IMAGE DISPLAY
+          // ======================
+
+          const isImageQuestion =
+            question.answerFormat?.includes(
+              "Image"
+            );
+
+          if (
+            isImageQuestion &&
+            answer
+          ) {
+
+            const imagePath =
+              path.join(
+                process.cwd(),
+                answer.replace(
+                  "/",
+                  ""
+                )
+              );
+
+            if (
+              fs.existsSync(
+                imagePath
+              )
+            ) {
+
+              doc.text(
+                "Answer :"
+              );
+
+              doc.moveDown(
+                0.5
+              );
+
+              doc.image(
+                imagePath,
+                {
+                  fit: [
+                    200,
+                    200
+                  ],
+                  align:
+                    "left"
+                }
+              );
+
+              doc.moveDown();
+
+            } else {
+
+              doc.text(
+                "Answer : Image Not Found"
+              );
+
+            }
+
+          }
+
+          else {
+
+            doc.text(
+              `Answer : ${
+                answer
+                  ? String(
+                      answer
+                    )
+                  : "Not Answered"
+              }`
+            );
+
+          }
 
           doc.moveDown();
+
         }
       );
+
     }
   );
 
   doc.end();
+
 };
 
 module.exports =

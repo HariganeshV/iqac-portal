@@ -259,42 +259,80 @@ const handleSaveDraft =
     }
   );
 
-      const payload = {
+  const formData =
+  new FormData();
 
-        role: "faculty",
+formData.append(
+  "role",
+  "faculty"
+);
 
-        school:
-          user?.school,
+formData.append(
+  "school",
+  user?.school
+);
 
-        department:
-          user?.department,
+formData.append(
+  "department",
+  user?.department
+);
 
-        quarter:
-          selectedQuarter,
+formData.append(
+  "quarter",
+  selectedQuarter
+);
 
-        year:
-          new Date().getFullYear(),
+formData.append(
+  "year",
+  new Date().getFullYear()
+);
 
-        totalQuestions:
-          facultyQuestions.length,
+formData.append(
+  "totalQuestions",
+  facultyQuestions.length
+);
 
-        answeredCount:
-          Object.keys(
-            answers
-          ).length,
+formData.append(
+  "answeredCount",
+  Object.keys(answers).length
+);
 
-        unansweredCount:
-          facultyQuestions.length -
-          Object.keys(
-            answers
-          ).length,
+formData.append(
+  "unansweredCount",
+  facultyQuestions.length -
+  Object.keys(answers).length
+);
 
-        answers: formattedAnswers,
+formData.append(
+  "status",
+  "Draft"
+);
 
-        status:
-          "Draft"
+formData.append(
+  "answers",
+  JSON.stringify(
+    formattedAnswers
+  )
+);
 
-      };
+  Object.entries(
+  answers
+).forEach(
+  ([key, value]) => {
+
+    if (
+      value instanceof File
+    ) {
+
+      formData.append(
+        key,
+        value
+      );
+
+    }
+
+  }
+);
 
       let response;
 
@@ -303,17 +341,17 @@ const handleSaveDraft =
       ) {
 
         response =
-          await updateSubmission(
-            id,
-            payload
-          );
+  await updateSubmission(
+    id,
+    formData
+  );
 
       } else {
 
-        response =
-          await saveSubmission(
-            payload
-          );
+        response = 
+      await saveSubmission(
+  formData
+);
 
       }
 
@@ -400,43 +438,80 @@ console.log("DEPARTMENT =", user?.department);
     }
   );
 
-      const payload = {
+  const formData =
+  new FormData();
 
-        role: "faculty",
+formData.append(
+  "role",
+  "faculty"
+);
 
-        school:
-          user?.school,
+formData.append(
+  "school",
+  user?.school
+);
 
-        department:
-          user?.department,
+formData.append(
+  "department",
+  user?.department
+);
 
-        quarter:
-          selectedQuarter,
+formData.append(
+  "quarter",
+  selectedQuarter
+);
 
-        year:
-          new Date().getFullYear(),
+formData.append(
+  "year",
+  new Date().getFullYear()
+);
 
-        totalQuestions:
-          facultyQuestions.length,
+formData.append(
+  "totalQuestions",
+  facultyQuestions.length
+);
 
-        answeredCount:
-          Object.keys(
-            answers
-          ).length,
+formData.append(
+  "answeredCount",
+  Object.keys(answers).length
+);
 
-        unansweredCount:
-          facultyQuestions.length -
-          Object.keys(
-            answers
-          ).length,
+formData.append(
+  "unansweredCount",
+  facultyQuestions.length -
+  Object.keys(answers).length
+);
 
-        answers: formattedAnswers,
+formData.append(
+  "status",
+  "Pending HOD Approval"
+);
 
-        status:
-          "Pending HOD Approval"
+formData.append(
+  "answers",
+  JSON.stringify(
+    formattedAnswers
+  )
+);
 
-      };
+  Object.entries(
+  answers
+).forEach(
+  ([key, value]) => {
 
+    if (
+      value instanceof File
+    ) {
+
+      formData.append(
+        key,
+        value
+      );
+
+    }
+
+  }
+);
       let response;
 
 if (
@@ -445,16 +520,16 @@ if (
 
   response =
     await updateSubmission(
-      id,
-      payload
-    );
+  id,
+  formData
+);
 
 } else {
 
   response =
     await saveSubmission(
-      payload
-    );
+  formData
+);
 
 }
 

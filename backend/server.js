@@ -26,6 +26,15 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ==========================
+// UPLOADS STATIC FOLDER
+// ==========================
+
+app.use(
+  "/uploads",
+  express.static("uploads")
+);
+
 // Health Check
 app.get("/", (req, res) => {
   res.status(200).json({

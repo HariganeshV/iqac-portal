@@ -2,6 +2,9 @@ const express = require("express");
 
 const router = express.Router();
 
+const upload =
+  require("../middleware/upload");
+
 const {
   saveSubmission,
   getMySubmissions,
@@ -24,6 +27,7 @@ const {
 router.post(
   "/save",
   protect,
+  upload.any(),
   saveSubmission
 );
 
@@ -62,6 +66,7 @@ router.put(
 router.put(
   "/update/:id",
   protect,
+  upload.any(),
   updateSubmission
 );
 

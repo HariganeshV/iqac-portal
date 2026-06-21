@@ -36,19 +36,23 @@ function Sidebar({
     ],
 
     hod: [
-      {
-        name: "Dashboard",
-        path: "/hod/dashboard"
-      },
-      {
-        name: "Faculty Review",
-        path: "/hod/faculty-review"
-      },
-      {
-        name: "HOD Questionnaire",
-        path: "/hod/questionnaire"
-      }
-    ],
+  {
+    name: "🏠 Dashboard",
+    path: "/hod/dashboard"
+  },
+  {
+    name: "📋 Faculty Reviews",
+    path: "/hod/faculty-review"
+  },
+  {
+    name: "📝 HOD Questionnaire",
+    path: "/hod/questionnaire"
+  },
+  {
+    name: "📊 Analytics",
+    path: "/hod/analytics"
+  }
+],
 
     dean: [
       {

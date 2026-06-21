@@ -145,29 +145,27 @@ function QuestionRenderer({
 case "PDF/Word Upload":
   return (
     <>
-      {value && (
-        <div
-          style={{
-            marginBottom:"10px",
-            color:"green",
-            fontWeight:"600"
-          }}
-        >
-          Current File :
-          {
-            typeof value === "string"
-              ? value
-              : value?.name
-          }
-        </div>
-      )}
+      {value &&
+        typeof value === "string" && (
+          <div
+            style={{
+              marginBottom: "10px",
+              color: "green",
+              fontWeight: "600"
+            }}
+          >
+            Current File :
+            {" "}
+            {value.split("/").pop()}
+          </div>
+        )}
 
       <input
         type="file"
         accept=".pdf,.doc,.docx"
         onChange={(e) =>
           onChange(
-            e.target.files[0]?.name
+            e.target.files[0]
           )
         }
         style={inputStyle}
@@ -175,33 +173,48 @@ case "PDF/Word Upload":
     </>
   );
 
-     case "Image Upload":
+  case "Image Upload":
 case "Image Upload (JPG/JPEG/PNG)":
   return (
     <>
-      {value && (
-        <div
-          style={{
-            marginBottom:"10px",
-            color:"green",
-            fontWeight:"600"
-          }}
-        >
-          Current File :
-          {
-            typeof value === "string"
-              ? value
-              : value?.name
-          }
-        </div>
-      )}
+      {value &&
+        typeof value === "string" && (
+          <div
+            style={{
+              marginBottom: "10px"
+            }}
+          >
+
+            <p
+              style={{
+                color: "green",
+                fontWeight: "600"
+              }}
+            >
+              Current Image
+            </p>
+
+            <img
+              src={
+                `http://localhost:5000${value}`
+              }
+              alt="Uploaded"
+              style={{
+                maxWidth: "250px",
+                borderRadius: "8px",
+                border: "1px solid #ddd"
+              }}
+            />
+
+          </div>
+        )}
 
       <input
         type="file"
         accept=".jpg,.jpeg,.png"
         onChange={(e) =>
           onChange(
-            e.target.files[0]?.name
+            e.target.files[0]
           )
         }
         style={inputStyle}

@@ -36,6 +36,47 @@ exports.saveSubmission = async (
       status
     } = req.body;
 
+    let parsedAnswers = [];
+
+if (answers) {
+
+  parsedAnswers =
+    typeof answers === "string"
+      ? JSON.parse(answers)
+      : answers;
+
+}
+
+if (
+  req.files &&
+  req.files.length > 0
+) {
+
+  req.files.forEach(
+    (file) => {
+
+      const questionNo =
+        file.fieldname;
+
+      const answerObj =
+        parsedAnswers.find(
+          (a) =>
+            a.questionNo ===
+            questionNo
+        );
+
+      if (answerObj) {
+
+        answerObj.answer =
+          `/uploads/faculty/${file.filename}`;
+
+      }
+
+    }
+  );
+
+}
+
     const submission =
       await Submission.findOneAndUpdate(
 
@@ -75,7 +116,7 @@ exports.saveSubmission = async (
     unansweredCount || 0,
 
   answers:
-    answers || [],
+  parsedAnswers,
 
   tableData:
     tableData || {},
@@ -250,8 +291,48 @@ exports.updateSubmission =
 
       }
 
-      submission.answers =
-        req.body.answers || [];
+      let parsedAnswers = [];
+
+if (req.body.answers) {
+
+  parsedAnswers =
+    typeof req.body.answers === "string"
+      ? JSON.parse(
+          req.body.answers
+        )
+      : req.body.answers;
+
+}
+
+if (
+  req.files &&
+  req.files.length > 0
+) {
+
+  req.files.forEach(
+    (file) => {
+
+      const answerObj =
+        parsedAnswers.find(
+          (a) =>
+            a.questionNo ===
+            file.fieldname
+        );
+
+      if (answerObj) {
+
+        answerObj.answer =
+          `/uploads/faculty/${file.filename}`;
+
+      }
+
+    }
+  );
+
+}
+
+submission.answers =
+  parsedAnswers;
 
       submission.tableData =
         req.body.tableData || {};
