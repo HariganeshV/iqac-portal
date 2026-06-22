@@ -84,6 +84,13 @@ function FacultyDashboard() {
         s.status === "Draft"
     ).length;
 
+  const rejectedCount =
+  submissions.filter(
+    (s) =>
+      s.status ===
+      "Rejected by HOD"
+  ).length;
+
   const notStartedCount =
     4 - submissions.length;
 
@@ -160,6 +167,16 @@ function FacultyDashboard() {
             Approved
           </p>
         </div>
+
+        <div className="stat-card">
+  <h2>
+    {rejectedCount}
+  </h2>
+  <p>
+    Rejected
+  </p>
+
+</div>
 
         <div className="stat-card">
           <h2>

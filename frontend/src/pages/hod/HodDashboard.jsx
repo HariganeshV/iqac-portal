@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import HodLayout from "../../layouts/HodLayout";
+import { useAuth } from "../../context/AuthContext";
+
 
 import {
   getFacultySubmissions
@@ -8,6 +11,8 @@ import {
 function HodDashboard() {
 
   const navigate = useNavigate();
+
+  const { user } = useAuth();
 
   const [submissions, setSubmissions] =
     useState([]);
@@ -68,9 +73,10 @@ function HodDashboard() {
 
   return (
 
+  <HodLayout>
+
     <div
       style={{
-        padding: "30px",
         background: "#f3f4f6",
         minHeight: "100vh"
       }}
@@ -90,20 +96,30 @@ function HodDashboard() {
       >
 
         <h1
-          style={{
-            margin: 0
-          }}
-        >
-          Welcome HOD
-        </h1>
+  style={{
+    margin: 0
+  }}
+>
+  Welcome, {user?.name}
+</h1>
 
-        <p
-          style={{
-            marginTop: "10px"
-          }}
-        >
-          Faculty Review Dashboard
-        </p>
+<p
+  style={{
+    marginTop: "10px",
+    fontSize: "16px"
+  }}
+>
+  Department : {user?.department}
+</p>
+
+<p
+  style={{
+    marginTop: "5px",
+    fontSize: "16px"
+  }}
+>
+  School : {user?.school}
+</p>
 
       </div>
 
@@ -122,10 +138,10 @@ function HodDashboard() {
         <div
           className="stat-card"
           onClick={() =>
-            navigate(
-              "/hod/faculty-review"
-            )
-          }
+  navigate(
+    "/hod/faculty-review?tab=pending"
+  )
+}
         >
 
           <h2>
@@ -143,10 +159,10 @@ function HodDashboard() {
         <div
           className="stat-card"
           onClick={() =>
-            navigate(
-              "/hod/approved"
-            )
-          }
+  navigate(
+    "/hod/faculty-review?tab=approved"
+  )
+}
         >
 
           <h2>
@@ -164,10 +180,10 @@ function HodDashboard() {
         <div
           className="stat-card"
           onClick={() =>
-            navigate(
-              "/hod/rejected"
-            )
-          }
+  navigate(
+    "/hod/faculty-review?tab=rejected"
+  )
+}
         >
 
           <h2>
@@ -332,7 +348,9 @@ function HodDashboard() {
 
       </style>
 
-    </div>
+       </div>
+
+  </HodLayout>
 
   );
 

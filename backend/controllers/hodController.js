@@ -195,44 +195,59 @@ exports.getFacultySubmissions =
 // APPROVE FACULTY SUBMISSION
 // ==============================
 
-exports.approveSubmission =
-  async (req, res) => {
-    try {
-      const submission =
-        await Submission.findById(
-          req.params.id
-        );
+exports.approveSubmission = async (req, res) => {
 
-      if (!submission) {
-        return res.status(404).json({
-          success: false,
-          message:
-            "Submission not found"
-        });
-      }
+  try {
 
-      submission.status =
-        "Approved by HOD";
+    console.log("Approve ID:", req.params.id);
 
-      submission.hodRemarks =
-        req.body.remarks ||
-        "Approved by HOD";
+    const submission =
+      await Submission.findById(
+        req.params.id
+      );
 
-      await submission.save();
+    console.log("Submission:", submission);
 
-      res.status(200).json({
-        success: true,
-        message:
-          "Faculty Submission Approved Successfully",
-        submission
-      });
-    } catch (error) {
-      res.status(500).json({
+    if (!submission) {
+
+      return res.status(404).json({
         success: false,
-        message: error.message
+        message: "Submission not found"
       });
+
     }
-  };
+
+    submission.status =
+  "Approved by HOD";
+
+submission.hodRemarks =
+  "Approved by HOD";
+
+await submission.save();
+
+    res.status(200).json({
+      success: true,
+      message:
+        "Faculty Submission Approved Successfully",
+      submission
+    });
+
+  } catch (error) {
+
+    console.log(
+      "APPROVE ERROR:"
+    );
+
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+
+};
 
 
 // ==============================

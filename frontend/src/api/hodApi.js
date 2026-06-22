@@ -26,3 +26,12 @@ export const rejectSubmission =
         remarks
       }
     );
+
+    export const downloadFacultyPDF =
+  (id) =>
+    API.get(
+      `/submissions/download/${id}`,
+      {
+        responseType: "blob"
+      }
+    );

@@ -35,22 +35,22 @@ function Sidebar({
       }
     ],
 
-    hod: [
+  hod: [
   {
-    name: "🏠 Dashboard",
+    name: "Dashboard",
     path: "/hod/dashboard"
   },
   {
-    name: "📋 Faculty Reviews",
+    name: "Faculty Reviews",
     path: "/hod/faculty-review"
   },
   {
-    name: "📝 HOD Questionnaire",
+    name: "HOD Questionnaire",
     path: "/hod/questionnaire"
   },
   {
-    name: "📊 Analytics",
-    path: "/hod/analytics"
+    name: "My HOD Submissions",
+    path: "/hod/submissions"
   }
 ],
 

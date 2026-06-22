@@ -401,41 +401,42 @@ submission.answers =
 // PDF EXPORT
 // ==============================
   exports.downloadPDF =
-  async (req, res) => {
+async (req, res) => {
 
-    try {
+  try {
 
-      const submission =
-        await Submission.findById(
-          req.params.id
-        );
-
-      if (!submission) {
-
-        return res
-          .status(404)
-          .json({
-            success: false,
-            message:
-              "Submission not found"
-          });
-
-      }
-
-      generatePDF(
-        res,
-        submission,
-        facultyQuestions
+    const submission =
+      await Submission.findById(
+        req.params.id
       );
 
-    } catch (error) {
+    if (!submission) {
 
-      res.status(500).json({
-        success: false,
-        message:
-          error.message
+      return res.status(404).json({
+        success:false,
+        message:"Submission not found"
       });
 
     }
 
-  };
+    return generatePDF(
+      res,
+      submission,
+      facultyQuestions
+    );
+
+  }
+
+  catch(error) {
+
+    console.error(error);
+
+    if (!res.headersSent) {
+
+      return res.status(500).json({
+        success:false,
+        message:error.message
+      });
+    }
+  }
+};

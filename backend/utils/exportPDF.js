@@ -13,7 +13,7 @@ const generatePDF = (
   });
 
   const filename =
-    `${submission.quarter}_${submission.facultyName}.pdf`;
+    `${submission.facultyName || "Faculty"}-${submission.quarter}.pdf`;
 
   res.setHeader(
     "Content-Type",
@@ -32,34 +32,65 @@ const generatePDF = (
   // ======================
 
   doc
+    .font("Helvetica-Bold")
     .fontSize(20)
-    .text("SRIHER IQAC Report");
+    .fillColor("black")
+    .text(
+      "SRIHER IQAC Report",
+      {
+        align: "center"
+      }
+    );
 
   doc.moveDown();
 
-  doc.fontSize(12);
+  doc
+    .font("Helvetica")
+    .fontSize(12);
 
   doc.text(
-    `Faculty Name : ${submission.facultyName}`
-  );
-  
-  doc.text(
-  `School : ${submission.school || "N/A"}`
-);
-
-  doc.text(
-    `Department : ${submission.department}`
+    `Faculty Name : ${submission.facultyName || "N/A"}`
   );
 
   doc.text(
-    `Quarter : ${submission.quarter}`
+    `Email : ${submission.facultyEmail || "N/A"}`
   );
 
   doc.text(
-    `Status : ${submission.status}`
+    `School : ${submission.school || "N/A"}`
   );
 
-  doc.moveDown();
+  doc.text(
+    `Department : ${submission.department || "N/A"}`
+  );
+
+  doc.text(
+    `Quarter : ${submission.quarter || "N/A"}`
+  );
+
+  doc.text(
+    `Status : ${submission.status || "N/A"}`
+  );
+
+  doc.text(
+    `Answered : ${submission.answeredCount || 0}`
+  );
+
+  doc.text(
+    `Unanswered : ${submission.unansweredCount || 0}`
+  );
+
+  doc.text(
+    `Submitted Date : ${
+      submission.createdAt
+        ? new Date(
+            submission.createdAt
+          ).toLocaleDateString("en-GB")
+        : "N/A"
+    }`
+  );
+
+  doc.moveDown(2);
 
   // ======================
   // ANSWER MAP
@@ -67,7 +98,7 @@ const generatePDF = (
 
   const answerMap = {};
 
-  submission.answers.forEach(
+  submission.answers?.forEach(
     (item) => {
 
       answerMap[item.questionNo] =
@@ -83,21 +114,73 @@ const generatePDF = (
   facultyQuestions.forEach(
     (section) => {
 
-      doc.moveDown();
+      // Section starts on new page if not enough space
+
+      if (
+        doc.y + 150 >
+        doc.page.height - 50
+      ) {
+
+        doc.addPage();
+
+      }
+
+      // ======================
+      // SECTION HEADER
+      // ======================
 
       doc
-        .fontSize(16)
-        .text(
-          `Section ${section.sectionNo}`
-        );
+        .moveTo(
+          40,
+          doc.y
+        )
+        .lineTo(
+          550,
+          doc.y
+        )
+        .strokeColor("#dc2626")
+        .lineWidth(2)
+        .stroke();
+
+      doc.moveDown(0.5);
+
+      const sectionTitle =
+        `Section ${section.sectionNo} - ${section.sectionTitle}`;
 
       doc
-        .fontSize(14)
+        .font("Helvetica-Bold")
+        .fontSize(15)
+        .fillColor("#dc2626")
         .text(
-          section.sectionTitle
+          sectionTitle,
+          40,
+          doc.y,
+          {
+            width: 510,
+            align: "left"
+          }
         );
 
+      doc.moveDown(0.5);
+
+      doc
+        .moveTo(
+          40,
+          doc.y
+        )
+        .lineTo(
+          550,
+          doc.y
+        )
+        .strokeColor("#dc2626")
+        .lineWidth(2)
+        .stroke();
+
       doc.moveDown();
+
+      // ======================
+      // QUESTIONS
+      // ======================
 
       section.questions.forEach(
         (
@@ -105,30 +188,48 @@ const generatePDF = (
           index
         ) => {
 
+          if (
+            doc.y + 120 >
+            doc.page.height - 50
+          ) {
+
+            doc.addPage();
+
+          }
+
           const key =
             `${section.sectionNo}_${index}`;
 
           const answer =
             answerMap[key];
 
-          doc
-            .fontSize(11)
-            .text(
-              `Question No : ${key}`
-            );
-
-          doc.text(
-            `Question : ${question.question}`
-          );
-
-          // ======================
-          // IMAGE DISPLAY
-          // ======================
-
           const isImageQuestion =
             question.answerFormat?.includes(
               "Image"
             );
+
+          const rowStartY =
+            doc.y;
+
+          // Question
+
+          doc
+            .font("Helvetica")
+            .fontSize(11)
+            .fillColor("black")
+            .text(
+              question.question,
+              50,
+              rowStartY,
+              {
+                width: 220,
+                align: "left"
+              }
+            );
+
+          // ======================
+          // IMAGE ANSWER
+          // ======================
 
           if (
             isImageQuestion &&
@@ -150,56 +251,116 @@ const generatePDF = (
               )
             ) {
 
-              doc.text(
-                "Answer :"
-              );
-
-              doc.moveDown(
-                0.5
-              );
-
               doc.image(
                 imagePath,
+                300,
+                rowStartY,
                 {
                   fit: [
-                    200,
-                    200
-                  ],
-                  align:
-                    "left"
+                    100,
+                    100
+                  ]
                 }
               );
 
-              doc.moveDown();
+              doc.y =
+                rowStartY + 120;
 
-            } else {
+            }
 
-              doc.text(
-                "Answer : Image Not Found"
-              );
+            else {
+
+              doc
+                .font("Helvetica")
+                .fontSize(11)
+                .fillColor("black")
+                .text(
+                  "Image Not Found",
+                  300,
+                  rowStartY,
+                  {
+                    width: 220
+                  }
+                );
+
+              doc.y =
+                rowStartY + 30;
 
             }
 
           }
 
+          // ======================
+          // NORMAL ANSWER
+          // ======================
+
           else {
 
-            doc.text(
-              `Answer : ${
-                answer
-                  ? String(
-                      answer
-                    )
-                  : "Not Answered"
-              }`
-            );
+            let displayAnswer =
+              answer
+                ? String(
+                    answer
+                  )
+                : "Not Answered";
+
+            if (
+              displayAnswer.includes(
+                ".pdf"
+              )
+            ) {
+
+              displayAnswer =
+                displayAnswer
+                  .split("/")
+                  .pop();
+
+            }
+
+            doc
+              .font("Helvetica")
+              .fontSize(11)
+              .fillColor("black")
+              .text(
+                displayAnswer,
+                300,
+                rowStartY,
+                {
+                  width: 220,
+                  align: "left"
+                }
+              );
+
+            doc.y =
+              Math.max(
+                doc.y,
+                rowStartY + 25
+              );
 
           }
+
+          // ======================
+          // ROW SEPARATOR
+          // ======================
+
+          doc
+            .moveTo(
+              40,
+              doc.y
+            )
+            .lineTo(
+              550,
+              doc.y
+            )
+            .strokeColor("#dddddd")
+            .lineWidth(1)
+            .stroke();
 
           doc.moveDown();
 
         }
       );
+
+      doc.moveDown();
 
     }
   );

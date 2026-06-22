@@ -1,9 +1,16 @@
+import React from "react";
 import { useEffect, useState } from "react";
+import facultyQuestions from "../../data/facultyQuestions";
+import { useLocation} from "react-router-dom";
+
+import HodLayout
+from "../../layouts/HodLayout";
 
 import {
   getFacultySubmissions,
   approveSubmission,
-  rejectSubmission
+  rejectSubmission,
+  downloadFacultyPDF
 } from "../../api/hodApi";
 
 function FacultyReview() {
@@ -14,17 +21,139 @@ function FacultyReview() {
   const [loading, setLoading] =
     useState(true);
 
+  const location =
+  useLocation();
+
   const [remarks, setRemarks] =
     useState({});
 
   const [selectedSubmission, setSelectedSubmission] =
     useState(null);
 
+  const params =
+  new URLSearchParams(
+    location.search
+  );
+
+const [activeTab,
+setActiveTab] =
+useState(
+  params.get("tab") ||
+  "pending"
+);
+
+useEffect(() => {
+
+  const params =
+    new URLSearchParams(
+      location.search
+    );
+
+  setActiveTab(
+    params.get("tab") ||
+    "pending"
+  );
+
+}, [location.search]);
+
+const pendingReviews =
+  submissions.filter(
+    (s) =>
+      s.status ===
+      "Pending HOD Approval"
+  );
+
+const approvedReviews =
+  submissions.filter(
+    (s) =>
+      s.status ===
+      "Approved by HOD"
+  );
+
+const rejectedReviews =
+  submissions.filter(
+    (s) =>
+      s.status ===
+      "Rejected by HOD"
+  );
+
+let displayData = [];
+
+if (activeTab === "pending") {
+  displayData = pendingReviews;
+}
+
+if (activeTab === "approved") {
+  displayData = approvedReviews;
+}
+
+if (activeTab === "rejected") {
+  displayData = rejectedReviews;
+}
+
   useEffect(() => {
 
     fetchSubmissions();
 
   }, []);
+
+ const handleDownload =
+  async (
+    submissionId,
+    facultyName,
+    quarter
+  ) => {
+
+    try {
+
+      const response =
+        await downloadFacultyPDF(
+          submissionId
+        );
+
+      const blob =
+        new Blob(
+          [response.data],
+          {
+            type:
+              "application/pdf"
+          }
+        );
+
+      const url =
+        window.URL.createObjectURL(
+          blob
+        );
+
+      const link =
+        document.createElement(
+          "a"
+        );
+
+      link.href = url;
+
+      link.download =
+        `${facultyName}-${quarter}.pdf`;
+
+      document.body.appendChild(
+        link
+      );
+
+      link.click();
+
+      link.remove();
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "PDF Download Failed"
+      );
+
+    }
+
+  };
 
   const fetchSubmissions =
     async () => {
@@ -118,19 +247,121 @@ function FacultyReview() {
 
   return (
 
-    <div
-      style={{
-        padding: "30px"
-      }}
-    >
+<HodLayout>
 
-      <h1>
-        Faculty Reviews
-      </h1>
+<div
+  style={{
+    padding: "30px",
+    minHeight: "100vh",
+    background:
+      "linear-gradient(180deg,#eef4ff 0%,#f8fafc 100%)"
+  }}
+>
 
-      <p>
-        Review Faculty Quarterly Reports
-      </p>
+     <div
+  style={{
+    background:
+      "linear-gradient(135deg,#2563eb,#1e40af)",
+    color: "white",
+    padding: "30px",
+    borderRadius: "15px",
+    marginBottom: "25px",
+    boxShadow:
+      "0 8px 20px rgba(37,99,235,0.2)"
+  }}
+>
+  <h1
+    style={{
+      margin: 0
+    }}
+  >
+    Faculty Reviews
+  </h1>
+
+  <p
+    style={{
+      marginTop: "10px",
+      marginBottom: 0
+    }}
+  >
+    Review Faculty Quarterly Reports
+  </p>
+</div>
+      
+      <div
+  style={{
+    display: "flex",
+    gap: "10px",
+    marginTop: "20px",
+    marginBottom: "20px"
+  }}
+>
+  <button
+    onClick={() =>
+      setActiveTab("pending")
+    }
+    style={{
+      padding: "10px 15px",
+      background:
+        activeTab === "pending"
+          ? "#2563eb"
+          : "#e5e7eb",
+      color:
+        activeTab === "pending"
+          ? "white"
+          : "black",
+      border: "none",
+      borderRadius: "6px",
+      cursor: "pointer"
+    }}
+  >
+    Pending Reviews
+  </button>
+
+  <button
+    onClick={() =>
+      setActiveTab("approved")
+    }
+    style={{
+      padding: "10px 15px",
+      background:
+        activeTab === "approved"
+          ? "#16a34a"
+          : "#e5e7eb",
+      color:
+        activeTab === "approved"
+          ? "white"
+          : "black",
+      border: "none",
+      borderRadius: "6px",
+      cursor: "pointer"
+    }}
+  >
+    Approved Reviews
+  </button>
+
+  <button
+    onClick={() =>
+      setActiveTab("rejected")
+    }
+    style={{
+      padding: "10px 15px",
+      background:
+        activeTab === "rejected"
+          ? "#dc2626"
+          : "#e5e7eb",
+      color:
+        activeTab === "rejected"
+          ? "white"
+          : "black",
+      border: "none",
+      borderRadius: "6px",
+      cursor: "pointer"
+    }}
+  >
+    Rejected Reviews
+  </button>
+</div>
 
       {
 
@@ -141,7 +372,15 @@ function FacultyReview() {
         </p>
 
         :
-
+       <div
+  style={{
+    background: "white",
+    padding: "20px",
+    borderRadius: "15px",
+    boxShadow:
+      "0 4px 15px rgba(0,0,0,0.08)"
+  }}
+>
         <table
           style={{
             width: "100%",
@@ -170,6 +409,10 @@ function FacultyReview() {
               <th style={thStyle}>
                 Answered
               </th>
+              
+              <th style={thStyle}>
+                Submitted Date
+              </th>
 
               <th style={thStyle}>
                 Status
@@ -191,7 +434,7 @@ function FacultyReview() {
 
             {
 
-              submissions.map(
+              displayData.map(
                 (
                   item
                 ) => (
@@ -221,20 +464,32 @@ function FacultyReview() {
                     </td>
 
                     <td style={tdStyle}>
-                      {
-                        item.answeredCount
-                      }
-                      /
-                      {
-                        item.totalQuestions
-                      }
-                    </td>
+  {
+    item.answeredCount
+  }
+  /
+  {
+    item.totalQuestions
+  }
+</td>
 
-                    <td style={tdStyle}>
-                      {
-                        item.status
-                      }
-                    </td>
+<td style={tdStyle}>
+  {
+    item.createdAt
+      ? new Date(
+          item.createdAt
+        ).toLocaleDateString(
+          "en-GB"
+        )
+      : "-"
+  }
+</td>
+
+<td style={tdStyle}>
+  {
+    item.status
+  }
+</td>
 
                     <td style={tdStyle}>
 
@@ -242,8 +497,10 @@ function FacultyReview() {
                         rows="2"
                         placeholder="Reason if rejecting..."
                         value={
-                          remarks[item._id] || ""
-                        }
+  remarks[item._id] ??
+  item.hodRemarks ??
+  ""
+}
                         onChange={(e) =>
                           setRemarks({
                             ...remarks,
@@ -270,28 +527,57 @@ function FacultyReview() {
                       >
                         View
                       </button>
+                      
+                    <button
+  onClick={() =>
+    handleDownload(
+      item._id,
+      item.facultyName,
+      item.quarter
+    )
+  }
+  style={{
+    background:"#7c3aed",
+    color:"#fff",
+    border:"none",
+    padding:"8px 12px",
+    borderRadius:"5px",
+    marginRight:"5px",
+    cursor:"pointer"
+  }}
+>
+  PDF
+</button>
 
-                      <button
-                        onClick={() =>
-                          handleApprove(
-                            item._id
-                          )
-                        }
-                        style={approveBtn}
-                      >
-                        Approve
-                      </button>
+                     {
+activeTab !== "approved" && (
+  <button
+    onClick={() =>
+      handleApprove(
+        item._id
+      )
+    }
+    style={approveBtn}
+  >
+    Approve
+  </button>
+)
+}
 
-                      <button
-                        onClick={() =>
-                          handleReject(
-                            item._id
-                          )
-                        }
-                        style={rejectBtn}
-                      >
-                        Reject
-                      </button>
+{
+activeTab !== "rejected" && (
+  <button
+    onClick={() =>
+      handleReject(
+        item._id
+      )
+    }
+    style={rejectBtn}
+  >
+    Reject
+  </button>
+)
+}
 
                     </td>
 
@@ -305,6 +591,7 @@ function FacultyReview() {
           </tbody>
 
         </table>
+      </div>
 
       }
 
@@ -330,22 +617,63 @@ function FacultyReview() {
           >
 
             <div
-              style={{
-                background: "white",
-                padding: "25px",
-                width: "80%",
-                maxHeight:
-                  "80vh",
-                overflowY:
-                  "auto",
-                borderRadius:
-                  "12px"
-              }}
-            >
+  style={{
+    background: "white",
+    padding: "25px",
+    width: "80%",
+    maxHeight:
+      "80vh",
+    overflowY:
+      "auto",
+    borderRadius:
+      "12px",
+    position:
+      "relative"
+  }}
+ >
 
-              <h2>
-  Faculty Answers
-</h2>
+<div
+  style={{
+    position: "sticky",
+    top: 0,
+    background: "white",
+    zIndex: 1000,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingBottom: "10px",
+    borderBottom:
+      "1px solid #e5e7eb",
+    marginBottom: "20px"
+  }}
+>
+  <h2
+    style={{
+      margin: 0
+    }}
+  >
+    Faculty Answers
+  </h2>
+
+  <button
+    onClick={() =>
+      setSelectedSubmission(null)
+    }
+    style={{
+      background:"#dc2626",
+      color:"#fff",
+      border:"none",
+      padding:"8px 15px",
+      borderRadius:"30px",
+fontWeight:"600",
+boxShadow:
+"0 3px 8px rgba(0,0,0,0.08)",
+      cursor:"pointer"
+    }}
+  >
+    ✕ Close
+  </button>
+</div>
 
 <div
   style={{
@@ -355,41 +683,25 @@ function FacultyReview() {
     borderRadius: "8px"
   }}
 >
-  <p>
-    <strong>Faculty :</strong>
-    {" "}
-    {selectedSubmission.facultyName}
-  </p>
+  <p><strong>Name:</strong> {selectedSubmission.facultyName}</p>
 
-  <p>
-    <strong>Email :</strong>
-    {" "}
-    {selectedSubmission.facultyEmail}
-  </p>
+<p><strong>Email:</strong> {selectedSubmission.facultyEmail}</p>
 
-  <p>
-    <strong>Quarter :</strong>
-    {" "}
-    {selectedSubmission.quarter}
-  </p>
+<p><strong>School:</strong> {selectedSubmission.school}</p>
 
-  <p>
-    <strong>Total Questions :</strong>
-    {" "}
-    {selectedSubmission.totalQuestions}
-  </p>
+<p><strong>Department:</strong> {selectedSubmission.department}</p>
 
-  <p>
-    <strong>Answered :</strong>
-    {" "}
-    {selectedSubmission.answeredCount}
-  </p>
+<p><strong>Quarter:</strong> {selectedSubmission.quarter}</p>
 
-  <p>
-    <strong>Unanswered :</strong>
-    {" "}
-    {selectedSubmission.unansweredCount}
-  </p>
+<p><strong>Status:</strong> {selectedSubmission.status}</p>
+
+<p><strong>Answered:</strong> {selectedSubmission.answeredCount}</p>
+
+<p><strong>Unanswered:</strong> {selectedSubmission.unansweredCount}</p>
+
+<p><strong>Remarks:</strong> {selectedSubmission.hodRemarks || "-"}</p>
+
+<p><strong>Submitted Date:</strong>{" "} {new Date(selectedSubmission.createdAt).toLocaleDateString("en-GB") }</p>
 
 </div>
 
@@ -399,70 +711,118 @@ function FacultyReview() {
     borderCollapse: "collapse"
   }}
 >
-  <thead>
+   <tbody>
 
-    <tr>
+{
+facultyQuestions.map(
+(section)=>{
 
-       <th style={thStyle}>
-         Question Key
-       </th>
+return (
 
-      <th style={thStyle}>
-        Answer
-      </th>
+<React.Fragment
+  key={section.sectionNo}
+>
 
-    </tr>
+<tr>
 
-  </thead>
+<td
+colSpan="2"
+style={{
+background:"#dbeafe",
+fontWeight:"bold",
+padding:"12px"
+}}
+>
 
-  <tbody>
+Section {section.sectionNo}
+ -
+ {section.sectionTitle}
 
-    {
-      selectedSubmission.answers?.map(
-        (answer, index) => (
+</td>
 
-          <tr key={index}>
+</tr>
 
-            <td style={tdStyle}>
-              {
-                answer.question
-              }
-            </td>
+{
 
-            <td style={tdStyle}>
-              {
-                answer.answer
-                  ? String(answer.answer)
-                  : "Not Answered"
-              }
-            </td>
+section.questions.map(
+(question,index)=>{
 
-          </tr>
+const key =
+`${section.sectionNo}_${index}`;
 
-        )
-      )
-    }
+const answerObj =
+selectedSubmission.answers?.find(
+(a)=>
+a.questionNo === key
+);
 
-  </tbody>
+return (
+
+<tr key={key}>
+
+<td style={tdStyle}>
+{question.question}
+</td>
+
+<td style={tdStyle}>
+
+{
+answerObj?.answer ?
+
+(
+typeof answerObj?.answer === "string" &&
+(
+  answerObj.answer.endsWith(".jpg") ||
+  answerObj.answer.endsWith(".jpeg") ||
+  answerObj.answer.endsWith(".png")
+)
+
+?
+
+<img
+  src={`http://localhost:5000${answerObj.answer}`}
+  alt="Faculty Upload"
+  style={{
+    maxWidth:"250px",
+    borderRadius:"8px"
+  }}
+/>
+
+:
+
+String(answerObj.answer)
+)
+
+:
+
+"Not Answered"
+
+}
+
+</td>
+
+</tr>
+
+);
+
+}
+)
+
+}
+
+</React.Fragment>
+
+);
+
+}
+)
+
+}
+
+</tbody>
 
 </table>
       
-         <button
-  onClick={() =>
-    setSelectedSubmission(null)
-  }
-  style={{
-    marginTop: "20px",
-    background: "#dc2626",
-    color: "white",
-    border: "none",
-    padding: "10px 20px",
-    borderRadius: "6px",
-    cursor: "pointer"
-  }}
->
-  Close
-</button>
 
             </div>
 
@@ -472,9 +832,11 @@ function FacultyReview() {
 
       }
 
-    </div>
+   </div>
 
-  );
+</HodLayout>
+
+);
 
 }
 
