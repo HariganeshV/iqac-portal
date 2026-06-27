@@ -35,3 +35,38 @@ export const rejectSubmission =
         responseType: "blob"
       }
     );
+
+    export const saveHodSubmission =
+  (data) =>
+    API.post(
+      "/hod/save",
+      data
+    );
+
+export const submitHodSubmission =
+  (id) =>
+    API.put(
+      `/hod/submit/${id}`
+    );
+
+export const getMyHodSubmissions =
+  () =>
+    API.get(
+      "/hod/my"
+    );
+
+    export const updateHodSubmission =
+  (id, data) =>
+    API.put(
+      `/hod/update/${id}`,
+      data
+    );
+
+    export const downloadHodPDF =
+(id) =>
+API.get(
+`/submissions/download/${id}`,
+{
+responseType:"blob"
+}
+);

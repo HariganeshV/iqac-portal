@@ -9,12 +9,9 @@ exports.downloadSubmissionReport =
     try {
 
       const submission =
-        await Submission.findById(
-          req.params.id
-        ).populate(
-          "submittedBy",
-          "name email role school department designation employeeId"
-        );
+  await Submission.findById(
+    req.params.id
+  );
 
       if (!submission) {
         return res.status(404).json({
@@ -53,22 +50,20 @@ exports.downloadSubmissionReport =
       doc.moveDown();
 
       doc
-        .fontSize(12)
-        .text(
-          `Name: ${
-            submission
-              .submittedBy?.name ||
-            "N/A"
-          }`
-        );
+  .fontSize(12)
+  .text(
+    `Name: ${
+      submission.submittedByName ||
+      "N/A"
+    }`
+  );
 
-      doc.text(
-        `Email: ${
-          submission
-            .submittedBy?.email ||
-          "N/A"
-        }`
-      );
+doc.text(
+  `Email: ${
+      submission.submittedByEmail ||
+      "N/A"
+    }`
+);
 
       doc.text(
         `Role: ${submission.role}`

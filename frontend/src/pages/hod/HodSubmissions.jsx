@@ -1,0 +1,734 @@
+import { useEffect, useState } from "react";
+
+import HodLayout from "../../layouts/HodLayout";
+
+import {
+  getMyHodSubmissions,
+  downloadHodPDF
+} from "../../api/hodApi";
+
+import { useNavigate } from "react-router-dom";
+
+import facultyQuestions from "../../data/facultyQuestions";
+import QuestionRenderer from "../../components/questionnaire/QuestionRenderer";
+function HodSubmissions() {
+
+  const navigate = useNavigate();
+
+  const [submissions, setSubmissions] =
+    useState([]);
+
+  const [selectedSubmission,
+    setSelectedSubmission] =
+    useState(null);
+
+  const [showModal,
+    setShowModal] =
+    useState(false);
+
+  useEffect(() => {
+
+    loadSubmissions();
+
+  }, []);
+
+  // ===========================
+  // LOAD SUBMISSIONS
+  // ===========================
+
+  const loadSubmissions =
+    async () => {
+
+      try {
+
+        const response =
+          await getMyHodSubmissions();
+
+        const saved =
+          response.data.submissions || [];
+
+        const quarters = [
+          "Q1",
+          "Q2",
+          "Q3",
+          "Q4"
+        ];
+
+        const rows =
+          quarters.map((quarter) => {
+
+            const existing =
+              saved.find(
+                item =>
+                  item.quarter === quarter
+              );
+
+            if (existing)
+              return existing;
+
+            return {
+
+              quarter,
+
+              status:
+                "Not Started",
+
+              deanRemarks: "-",
+
+              totalQuestions: 0,
+
+              answeredCount: 0,
+
+              unansweredCount: 0,
+
+              createdAt: null,
+
+              answers: []
+
+            };
+
+          });
+
+        setSubmissions(rows);
+
+      }
+
+      catch (error) {
+
+        console.log(error);
+
+      }
+
+    };
+
+  // ===========================
+  // VIEW SUBMISSION
+  // ===========================
+
+  const handleView =
+    (submission) => {
+
+      setSelectedSubmission(
+        submission
+      );
+
+      setShowModal(true);
+
+    };
+
+  // ===========================
+  // DOWNLOAD PDF
+  // ===========================
+
+  const handleDownload =
+    async (id, quarter) => {
+
+      try {
+
+        const response =
+          await downloadHodPDF(id);
+
+        const blob =
+          new Blob(
+            [response.data],
+            {
+              type:
+                "application/pdf"
+            }
+          );
+
+        const url =
+          window.URL.createObjectURL(
+            blob
+          );
+
+        const link =
+          document.createElement(
+            "a"
+          );
+
+        link.href = url;
+
+        link.download =
+          `HOD-${quarter}.pdf`;
+
+        link.click();
+
+      }
+
+      catch (error) {
+
+        console.log(error);
+
+      }
+
+    };
+
+  // ===========================
+  // ANSWER FINDER
+  // ===========================
+
+  const getAnswer =
+    (questionNo) => {
+
+      if (
+        !selectedSubmission
+      )
+        return null;
+
+      return (
+        selectedSubmission.answers?.find(
+          answer =>
+            answer.questionNo ===
+            questionNo
+        )?.answer || null
+      );
+
+    };
+      return (
+
+    <HodLayout>
+
+      <div
+        style={{
+          background: "#fff",
+          padding: "30px",
+          borderRadius: "15px",
+          boxShadow:
+            "0 2px 10px rgba(0,0,0,0.1)"
+        }}
+      >
+
+        <h1>
+          My HOD Submissions
+        </h1>
+
+        <p>
+          View Quarterly Submission Status
+        </p>
+
+        <table
+          style={{
+            width: "100%",
+            marginTop: "25px",
+            borderCollapse: "collapse"
+          }}
+        >
+
+          <thead>
+
+            <tr
+              style={{
+                background: "#2563eb",
+                color: "#fff"
+              }}
+            >
+
+              <th style={thStyle}>
+                Quarter
+              </th>
+
+              <th style={thStyle}>
+                Status
+              </th>
+
+              <th style={thStyle}>
+                Rejection Reason
+              </th>
+
+              <th style={thStyle}>
+                Total Questions
+              </th>
+
+              <th style={thStyle}>
+                Answered
+              </th>
+
+              <th style={thStyle}>
+                Unanswered
+              </th>
+
+              <th style={thStyle}>
+                Submitted Date
+              </th>
+
+              <th style={thStyle}>
+                Action
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            {
+
+              submissions.map(
+                (item) => (
+
+                  <tr
+                    key={item.quarter}
+                  >
+
+                    <td style={tdStyle}>
+                      {item.quarter}
+                    </td>
+
+                    <td
+                      style={{
+                        ...tdStyle,
+                        color:
+
+                          item.status ===
+                          "Pending Dean Review"
+
+                          ? "#2563eb"
+
+                          : item.status ===
+                          "Approved by Dean"
+
+                          ? "#16a34a"
+
+                          : item.status ===
+                          "Rejected by Dean"
+
+                          ? "#dc2626"
+
+                          : item.status ===
+                          "Draft"
+
+                          ? "#f59e0b"
+
+                          : "#6b7280",
+
+                        fontWeight: "600"
+                      }}
+                    >
+
+                      {item.status}
+
+                    </td>
+
+                    <td style={tdStyle}>
+
+                      {
+                        item.deanRemarks ||
+                        "-"
+                      }
+
+                    </td>
+
+                    <td style={tdStyle}>
+                      {
+                        item.totalQuestions
+                      }
+                    </td>
+
+                    <td style={tdStyle}>
+                      {
+                        item.answeredCount
+                      }
+                    </td>
+
+                    <td style={tdStyle}>
+                      {
+                        item.unansweredCount
+                      }
+                    </td>
+
+                    <td style={tdStyle}>
+
+                      {
+
+                        item.createdAt
+
+                        ?
+
+                        new Date(
+                          item.createdAt
+                        ).toLocaleDateString()
+
+                        :
+
+                        "-"
+
+                      }
+
+                    </td>
+
+                    <td style={tdStyle}>
+
+                      {
+
+                        item.status !==
+                        "Not Started"
+
+                        &&
+
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "8px"
+                          }}
+                        >
+
+                          <button
+                            onClick={() =>
+                              handleView(
+                                item
+                              )
+                            }
+                            style={{
+
+                              background:
+                                "#7c3aed",
+
+                              color:
+                                "#fff",
+
+                              border:
+                                "none",
+
+                              padding:
+                                "8px 15px",
+
+                              borderRadius:
+                                "6px",
+
+                              cursor:
+                                "pointer"
+
+                            }}
+                          >
+
+                            View
+
+                          </button>
+
+                          <button
+                            onClick={() =>
+                              navigate(
+                                `/hod/questionnaire/${item._id}`
+                              )
+                            }
+                            style={{
+
+                              background:
+                                "#2563eb",
+
+                              color:
+                                "#fff",
+
+                              border:
+                                "none",
+
+                              padding:
+                                "8px 15px",
+
+                              borderRadius:
+                                "6px",
+
+                              cursor:
+                                "pointer"
+
+                            }}
+                          >
+
+                            Edit
+
+                          </button>
+
+                          <button
+                            onClick={() =>
+                              handleDownload(
+                                item._id,
+                                item.quarter
+                              )
+                            }
+                            style={{
+
+                              background:
+                                "#16a34a",
+
+                              color:
+                                "#fff",
+
+                              border:
+                                "none",
+
+                              padding:
+                                "8px 15px",
+
+                              borderRadius:
+                                "6px",
+
+                              cursor:
+                                "pointer"
+
+                            }}
+                          >
+
+                            PDF
+
+                          </button>
+
+                        </div>
+
+                      }
+
+                    </td>
+
+                  </tr>
+
+                )
+
+              )
+
+            }
+
+          </tbody>
+
+        </table>
+              {
+        showModal &&
+        selectedSubmission && (
+
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              background: "rgba(0,0,0,0.5)",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 9999
+            }}
+          >
+
+            <div
+              style={{
+                background: "#fff",
+                width: "90%",
+                maxHeight: "90vh",
+                overflowY: "auto",
+                borderRadius: "12px",
+                padding: "25px",
+                position: "relative"
+              }}
+            >
+
+              <button
+                onClick={() =>
+                  setShowModal(false)
+                }
+                style={{
+                  position: "sticky",
+                  top: 0,
+                  float: "right",
+                  background: "#dc2626",
+                  color: "#fff",
+                  border: "none",
+                  padding: "10px 15px",
+                  borderRadius: "6px",
+                  cursor: "pointer"
+                }}
+              >
+                ✕ Close
+              </button>
+
+              <h2>
+                HOD Submission Details
+              </h2>
+
+              <p>
+                <b>Name :</b>{" "}
+                {
+                  selectedSubmission.submittedByName
+                }
+              </p>
+
+              <p>
+                <b>Email :</b>{" "}
+                {
+                  selectedSubmission.submittedByEmail
+                }
+              </p>
+
+              <p>
+                <b>Quarter :</b>{" "}
+                {
+                  selectedSubmission.quarter
+                }
+              </p>
+
+              <p>
+                <b>School :</b>{" "}
+                {
+                  selectedSubmission.school
+                }
+              </p>
+
+              <p>
+                <b>Department :</b>{" "}
+                {
+                  selectedSubmission.department
+                }
+              </p>
+
+              <p>
+                <b>Status :</b>{" "}
+                {
+                  selectedSubmission.status
+                }
+              </p>
+
+              <p>
+                <b>Answered :</b>{" "}
+                {
+                  selectedSubmission.answeredCount
+                }
+              </p>
+
+              <p>
+                <b>Unanswered :</b>{" "}
+                {
+                  selectedSubmission.unansweredCount
+                }
+              </p>
+
+              <hr
+                style={{
+                  margin: "25px 0"
+                }}
+              />
+
+              {
+                facultyQuestions.map(
+                  (section) => (
+
+                    <div
+                      key={section.sectionNo}
+                      style={{
+                        marginBottom: "30px"
+                      }}
+                    >
+
+                      <div
+                        style={{
+                          background:
+                            "#dbeafe",
+                          padding: "12px",
+                          fontWeight: "bold",
+                          fontSize: "18px",
+                          borderRadius: "6px"
+                        }}
+                      >
+
+                        Section {section.sectionNo}
+                        {" - "}
+                        {
+                          section.sectionTitle
+                        }
+
+                      </div>
+
+                      <div
+                        style={{
+                          marginTop: "20px"
+                        }}
+                      >
+
+                        {
+                          section.questions.map(
+                            (
+                              question,
+                              index
+                            ) => {
+
+                              const key =
+`${section.sectionNo}_${index}`;
+
+                              return (
+
+                                <div
+                                  key={key}
+                                  style={{
+                                    marginBottom: "20px",
+                                    padding: "15px",
+                                    border:
+                                      "1px solid #e5e7eb",
+                                    borderRadius: "8px"
+                                  }}
+                                >
+
+                                  <p
+                                    style={{
+                                      fontWeight: "600",
+                                      marginBottom: "10px"
+                                    }}
+                                  >
+                                    {
+                                      question.question
+                                    }
+                                  </p>
+
+                                  <QuestionRenderer
+                                    questionData={question}
+                                    value={getAnswer(key)}
+                                    onChange={() => {}}
+                                  />
+
+                                </div>
+
+                              );
+
+                            }
+
+                          )
+
+                        }
+
+                      </div>
+
+                    </div>
+
+                  )
+
+                )
+
+              }
+
+            </div>
+
+          </div>
+
+        )
+      }
+
+    </div>
+
+  </HodLayout>
+   );
+}  
+  const thStyle = {
+
+  padding: "12px",
+
+  textAlign: "left"
+
+};
+
+const tdStyle = {
+
+  padding: "12px",
+
+  borderBottom:
+    "1px solid #e5e7eb"
+
+};
+
+export default HodSubmissions;

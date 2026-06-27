@@ -2,13 +2,17 @@ const express = require("express");
 
 const router = express.Router();
 
+const upload =
+  require("../middleware/upload");
+
 const {
   saveHodSubmission,
   getMyHodSubmissions,
   submitHodSubmission,
   getFacultySubmissions,
   approveSubmission,
-  rejectSubmission
+  rejectSubmission,
+  updateHodSubmission
 } = require(
   "../controllers/hodController"
 );
@@ -29,6 +33,7 @@ const {
 router.post(
   "/save",
   protect,
+  upload.any(),
   saveHodSubmission
 );
 
@@ -48,6 +53,12 @@ router.put(
   submitHodSubmission
 );
 
+router.put(
+  "/update/:id",
+  protect,
+  upload.any(),
+  updateHodSubmission
+);
 
 // ==============================
 // FACULTY REVIEW

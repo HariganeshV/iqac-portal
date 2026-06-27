@@ -292,15 +292,36 @@ formData.append(
   facultyQuestions.length
 );
 
+const answeredSections =
+facultyQuestions.filter(
+(section)=>
+section.questions.some(
+(_,index)=>{
+
+const value =
+answers[
+`${section.sectionNo}_${index}`
+];
+
+return (
+value !== undefined &&
+value !== null &&
+value !== ""
+);
+
+}
+)
+).length;
+
 formData.append(
-  "answeredCount",
-  Object.keys(answers).length
+"answeredCount",
+answeredSections
 );
 
 formData.append(
-  "unansweredCount",
-  facultyQuestions.length -
-  Object.keys(answers).length
+"unansweredCount",
+facultyQuestions.length -
+answeredSections
 );
 
 formData.append(
@@ -471,15 +492,36 @@ formData.append(
   facultyQuestions.length
 );
 
+const answeredSections =
+facultyQuestions.filter(
+(section)=>
+section.questions.some(
+(_,index)=>{
+
+const value =
+answers[
+`${section.sectionNo}_${index}`
+];
+
+return (
+value !== undefined &&
+value !== null &&
+value !== ""
+);
+
+}
+)
+).length;
+
 formData.append(
-  "answeredCount",
-  Object.keys(answers).length
+"answeredCount",
+answeredSections
 );
 
 formData.append(
-  "unansweredCount",
-  facultyQuestions.length -
-  Object.keys(answers).length
+"unansweredCount",
+facultyQuestions.length -
+answeredSections
 );
 
 formData.append(
@@ -581,7 +623,25 @@ navigate(
   };
 
   const answeredCount =
-    Object.keys(answers).length;
+facultyQuestions.filter(
+(section)=>
+section.questions.some(
+(_,index)=>{
+
+const value =
+answers[
+`${section.sectionNo}_${index}`
+];
+
+return (
+value !== undefined &&
+value !== null &&
+value !== ""
+);
+
+}
+)
+).length;
 
   const progress =
     Math.round(

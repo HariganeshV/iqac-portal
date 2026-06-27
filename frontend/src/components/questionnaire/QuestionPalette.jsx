@@ -81,15 +81,33 @@ function QuestionPalette({
               const isCurrent =
                 currentIndex === index;
 
-              const isAnswered =
-                Object.keys(
-                  answers
-                ).some(
-                  (key) =>
-                    key.startsWith(
-                      `${section.sectionNo}_`
-                    )
-                );
+               const isAnswered =
+
+Object.keys(answers).some(
+  (key) =>
+    key.startsWith(
+      `${section.sectionNo}_`
+    )
+)
+
+||
+
+(
+  answers[section.sectionNo] &&
+  (
+    Array.isArray(
+      answers[section.sectionNo]
+    )
+      ? answers[
+          section.sectionNo
+        ].length > 0
+      : Object.keys(
+          answers[
+            section.sectionNo
+          ] || {}
+        ).length > 0
+  )
+);
 
               const isVisited =
   visitedSections?.includes(

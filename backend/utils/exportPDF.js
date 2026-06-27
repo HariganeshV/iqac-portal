@@ -8,12 +8,13 @@ const generatePDF = (
   facultyQuestions
 ) => {
 
-  const doc = new PDFDocument({
-    margin: 40
-  });
+  const doc =
+    new PDFDocument({
+      margin:40
+    });
 
   const filename =
-    `${submission.facultyName || "Faculty"}-${submission.quarter}.pdf`;
+`${submission.submittedByName || "Faculty"}-${submission.quarter}.pdf`;
 
   res.setHeader(
     "Content-Type",
@@ -32,63 +33,63 @@ const generatePDF = (
   // ======================
 
   doc
-    .font("Helvetica-Bold")
-    .fontSize(20)
-    .fillColor("black")
-    .text(
-      "SRIHER IQAC Report",
-      {
-        align: "center"
-      }
-    );
+  .font("Helvetica-Bold")
+  .fontSize(20)
+  .fillColor("black")
+  .text(
+    "SRIHER IQAC Report",
+    {
+      align:"center"
+    }
+  );
 
   doc.moveDown();
 
   doc
-    .font("Helvetica")
-    .fontSize(12);
+  .font("Helvetica")
+  .fontSize(12);
 
   doc.text(
-    `Faculty Name : ${submission.facultyName || "N/A"}`
-  );
+`Faculty Name : ${submission.submittedByName || "N/A"}`
+);
 
   doc.text(
-    `Email : ${submission.facultyEmail || "N/A"}`
-  );
+`Email : ${submission.submittedByEmail || "N/A"}`
+);
 
   doc.text(
-    `School : ${submission.school || "N/A"}`
-  );
+`School : ${submission.school || "N/A"}`
+);
 
   doc.text(
-    `Department : ${submission.department || "N/A"}`
-  );
+`Department : ${submission.department || "N/A"}`
+);
 
   doc.text(
-    `Quarter : ${submission.quarter || "N/A"}`
-  );
+`Quarter : ${submission.quarter || "N/A"}`
+);
 
   doc.text(
-    `Status : ${submission.status || "N/A"}`
-  );
+`Status : ${submission.status || "N/A"}`
+);
 
   doc.text(
-    `Answered : ${submission.answeredCount || 0}`
-  );
+`Answered : ${submission.answeredCount || 0}`
+);
 
   doc.text(
-    `Unanswered : ${submission.unansweredCount || 0}`
-  );
+`Unanswered : ${submission.unansweredCount || 0}`
+);
 
   doc.text(
-    `Submitted Date : ${
-      submission.createdAt
-        ? new Date(
-            submission.createdAt
-          ).toLocaleDateString("en-GB")
-        : "N/A"
-    }`
-  );
+`Submitted Date : ${
+submission.createdAt
+? new Date(
+submission.createdAt
+).toLocaleDateString("en-GB")
+: "N/A"
+}`
+);
 
   doc.moveDown(2);
 
@@ -99,139 +100,144 @@ const generatePDF = (
   const answerMap = {};
 
   submission.answers?.forEach(
-    (item) => {
+    (item)=>{
 
       answerMap[item.questionNo] =
-        item.answer;
+      item.answer;
 
     }
   );
 
   // ======================
-  // QUESTIONS
+  // SECTIONS
   // ======================
 
   facultyQuestions.forEach(
-    (section) => {
-
-      // Section starts on new page if not enough space
+    (section)=>{
 
       if (
-        doc.y + 150 >
-        doc.page.height - 50
-      ) {
-
-        doc.addPage();
-
-      }
-
-      // ======================
-      // SECTION HEADER
-      // ======================
+doc.y + 180 >
+doc.page.height - 50
+) {
+doc.addPage();
+}
 
       doc
-        .moveTo(
-          40,
-          doc.y
-        )
-        .lineTo(
-          550,
-          doc.y
-        )
-        .strokeColor("#dc2626")
-        .lineWidth(2)
-        .stroke();
-
-      doc.moveDown(0.5);
-
-      const sectionTitle =
-        `Section ${section.sectionNo} - ${section.sectionTitle}`;
-
-      doc
-        .font("Helvetica-Bold")
-        .fontSize(15)
-        .fillColor("#dc2626")
-        .text(
-          sectionTitle,
-          40,
-          doc.y,
-          {
-            width: 510,
-            align: "left"
-          }
-        );
+      .moveTo(
+        40,
+        doc.y
+      )
+      .lineTo(
+        550,
+        doc.y
+      )
+      .strokeColor("#dc2626")
+      .lineWidth(2)
+      .stroke();
 
       doc.moveDown(0.5);
 
       doc
-        .moveTo(
-          40,
-          doc.y
-        )
-        .lineTo(
-          550,
-          doc.y
-        )
-        .strokeColor("#dc2626")
-        .lineWidth(2)
-        .stroke();
+      .font("Helvetica-Bold")
+      .fontSize(15)
+      .fillColor("#dc2626")
+      .text(
+`Section ${section.sectionNo} - ${section.sectionTitle}`
+);
+
+      doc.moveDown(0.5);
+
+      doc
+      .moveTo(
+        40,
+        doc.y
+      )
+      .lineTo(
+        550,
+        doc.y
+      )
+      .strokeColor("#dc2626")
+      .lineWidth(2)
+      .stroke();
 
       doc.moveDown();
 
-      // ======================
-      // QUESTIONS
-      // ======================
-
       section.questions.forEach(
+
         (
           question,
           index
-        ) => {
+        )=>{
 
-          if (
+          if(
             doc.y + 120 >
             doc.page.height - 50
-          ) {
+          ){
 
             doc.addPage();
 
           }
 
           const key =
-            `${section.sectionNo}_${index}`;
+`${section.sectionNo}_${index}`;
 
           const answer =
-            answerMap[key];
+answerMap[key];
 
           const isImageQuestion =
-            question.answerFormat?.includes(
-              "Image"
-            );
+question.answerFormat?.includes(
+"Image"
+);
+
+          const isFileAnswer =
+typeof answer==="string" &&
+answer.startsWith("/uploads/");
 
           const rowStartY =
-            doc.y;
+doc.y;
 
-          // Question
+          // LEFT COLUMN (QUESTION)
 
-          doc
-            .font("Helvetica")
-            .fontSize(11)
-            .fillColor("black")
-            .text(
-              question.question,
-              50,
-              rowStartY,
-              {
-                width: 220,
-                align: "left"
-              }
-            );
+doc
+  .font("Helvetica")
+  .fontSize(11)
+  .fillColor("black");
 
+const questionHeight = doc.heightOfString(
+  question.question,
+  {
+    width: 220
+  }
+);
+
+let rowHeight = Math.max(
+  questionHeight,
+  30
+);
+
+if (
+  isImageQuestion &&
+  answer
+) {
+  rowHeight = Math.max(
+    rowHeight,
+    120
+  );
+}
+
+doc.text(
+  question.question,
+  50,
+  rowStartY,
+  {
+    width:220,
+    align:"left"
+  }
+);
           // ======================
           // IMAGE ANSWER
           // ======================
-
-          if (
+                    if (
             isImageQuestion &&
             answer
           ) {
@@ -252,19 +258,36 @@ const generatePDF = (
             ) {
 
               doc.image(
-                imagePath,
-                300,
-                rowStartY,
-                {
-                  fit: [
-                    100,
-                    100
-                  ]
-                }
-              );
+imagePath,
+300,
+rowStartY,
+{
+fit:[100,100],
+align:"left"
+}
+);
 
               doc.y =
                 rowStartY + 120;
+
+              // Image hyperlink
+
+              doc
+.fillColor("blue")
+.fontSize(10)
+.text(
+"View Image",
+300,
+rowStartY + 105,
+{
+link:`http://localhost:5000${answer}`,
+underline:true
+}
+);
+
+              doc.fillColor("black");
+
+              doc.moveDown();
 
             }
 
@@ -273,18 +296,16 @@ const generatePDF = (
               doc
                 .font("Helvetica")
                 .fontSize(11)
-                .fillColor("black")
+                .fillColor("red")
                 .text(
                   "Image Not Found",
                   300,
-                  rowStartY,
-                  {
-                    width: 220
-                  }
+                  rowStartY
                 );
 
               doc.y =
-                rowStartY + 30;
+rowStartY +
+rowHeight;
 
             }
 
@@ -296,73 +317,134 @@ const generatePDF = (
 
           else {
 
-            let displayAnswer =
-              answer
-                ? String(
-                    answer
-                  )
-                : "Not Answered";
+            if(!isFileAnswer){
 
-            if (
-              displayAnswer.includes(
-                ".pdf"
-              )
-            ) {
+let displayAnswer =
+answer
+? String(answer)
+: "Not Answered";
 
-              displayAnswer =
-                displayAnswer
-                  .split("/")
-                  .pop();
+doc
+.font("Helvetica")
+.fontSize(11)
+.fillColor("black")
+.text(
+displayAnswer,
+300,
+rowStartY
+);
 
-            }
+}
+            
+              if(isFileAnswer){
 
-            doc
-              .font("Helvetica")
-              .fontSize(11)
-              .fillColor("black")
-              .text(
-                displayAnswer,
-                300,
-                rowStartY,
-                {
-                  width: 220,
-                  align: "left"
-                }
-              );
+  const fileUrl =
+`http://localhost:5000${answer}`;
 
-            doc.y =
-              Math.max(
-                doc.y,
-                rowStartY + 25
-              );
+  const ext =
+path.extname(answer)
+.toLowerCase();
+
+  let icon = "[PDF]";
+
+if(
+ext === ".doc" ||
+ext === ".docx"
+){
+
+icon = "[DOC]";
+
+}
+
+else if(
+
+ext === ".xls" ||
+ext === ".xlsx"
+
+){
+
+icon = "[XLS]";
+
+}
+
+else if(
+
+ext === ".jpg" ||
+ext === ".jpeg" ||
+ext === ".png"
+
+){
+
+icon = "[IMG]";
+
+}
+
+  doc.moveDown(0.3);
+
+  doc
+.fillColor("blue")
+.fontSize(11)
+.text(
+`${icon} ${path.basename(answer)}`,
+300,          // X position (Answer column)
+rowStartY,    // Y position (same row)
+{
+width:220,
+align:"left",
+link:fileUrl,
+underline:true
+}
+);
+
+doc.fillColor("black");
+
+doc.y =
+Math.max(
+doc.y,
+rowStartY + 25
+);
+
+  doc.fillColor("black");
+
+}
+
+
+
+doc.y =
+rowStartY + rowHeight;
 
           }
 
           // ======================
-          // ROW SEPARATOR
+          // ROW LINE
           // ======================
 
           doc
-            .moveTo(
-              40,
-              doc.y
-            )
-            .lineTo(
-              550,
-              doc.y
-            )
-            .strokeColor("#dddddd")
-            .lineWidth(1)
-            .stroke();
+.moveTo(
+40,
+rowStartY + rowHeight + 8
+)
+.lineTo(
+550,
+rowStartY + rowHeight + 8
+)
+.strokeColor("#dddddd")
+.lineWidth(1)
+.stroke();
+
+doc.y =
+rowStartY + rowHeight + 18;
 
           doc.moveDown();
 
         }
+
       );
 
       doc.moveDown();
 
     }
+
   );
 
   doc.end();
@@ -370,4 +452,4 @@ const generatePDF = (
 };
 
 module.exports =
-  generatePDF;
+generatePDF;

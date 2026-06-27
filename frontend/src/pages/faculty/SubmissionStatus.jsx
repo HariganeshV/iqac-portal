@@ -466,10 +466,11 @@ link.download =
       <button
         onClick={() =>
   handleDownload(
-    info.submissionId,
-    quarter,
-    info.submission?.facultyName
-  )
+  info.submissionId,
+  quarter,
+  info.submission?.submittedByName ||
+  info.submission?.facultyName
+)
 }
         style={{
           background:"#16a34a",
@@ -562,15 +563,17 @@ Faculty Submission Details
 </h2>
 
 <p>
-<b>Name:</b>
-{" "}
-{selectedSubmission.facultyName}
+<b>Name:</b>{" "}
+{
+  selectedSubmission.submittedByName || "-"
+}
 </p>
 
 <p>
-<b>Email:</b>
-{" "}
-{selectedSubmission.facultyEmail}
+<b>Email:</b>{" "}
+{
+  selectedSubmission.submittedByEmail || "-"
+}
 </p>
 
 <p>

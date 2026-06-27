@@ -18,17 +18,36 @@ exports.saveDeanSubmission =
       } = req.body;
 
       const submission =
-        await Submission.create({
-          submittedBy: req.user._id,
-          role: "dean",
-          school,
-          department,
-          quarter,
-          year,
-          answers,
-          tableData,
-          status: "Draft"
-        });
+  await Submission.create({
+
+    submittedBy:
+      req.user._id,
+
+    submittedByName:
+      req.user.name,
+
+    submittedByEmail:
+      req.user.email,
+
+    role:
+      "dean",
+
+    school,
+
+    department,
+
+    quarter,
+
+    year,
+
+    answers,
+
+    tableData,
+
+    status:
+      "Draft"
+
+  });
 
       res.status(201).json({
         success: true,

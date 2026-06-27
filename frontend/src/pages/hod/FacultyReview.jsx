@@ -445,17 +445,13 @@ if (activeTab === "rejected") {
                     }
                   >
 
-                    <td style={tdStyle}>
-                      {
-                        item.facultyName
-                      }
-                    </td>
+                   <td style={tdStyle}>
+  {item.submittedByName}
+</td>
 
-                    <td style={tdStyle}>
-                      {
-                        item.facultyEmail
-                      }
-                    </td>
+<td style={tdStyle}>
+  {item.submittedByEmail}
+</td>
 
                     <td style={tdStyle}>
                       {
@@ -531,10 +527,10 @@ if (activeTab === "rejected") {
                     <button
   onClick={() =>
     handleDownload(
-      item._id,
-      item.facultyName,
-      item.quarter
-    )
+  item._id,
+  item.submittedByName,
+  item.quarter
+)
   }
   style={{
     background:"#7c3aed",
@@ -683,9 +679,15 @@ boxShadow:
     borderRadius: "8px"
   }}
 >
-  <p><strong>Name:</strong> {selectedSubmission.facultyName}</p>
+<p>
+<strong>Name:</strong>
+{selectedSubmission.submittedByName}
+</p>
 
-<p><strong>Email:</strong> {selectedSubmission.facultyEmail}</p>
+<p>
+<strong>Email:</strong>
+{selectedSubmission.submittedByEmail}
+</p>
 
 <p><strong>School:</strong> {selectedSubmission.school}</p>
 
@@ -770,12 +772,13 @@ return (
 answerObj?.answer ?
 
 (
-typeof answerObj?.answer === "string" &&
+typeof answerObj.answer === "string"
+
+?
+
 (
-  answerObj.answer.endsWith(".jpg") ||
-  answerObj.answer.endsWith(".jpeg") ||
-  answerObj.answer.endsWith(".png")
-)
+
+answerObj.answer.match(/\.(jpg|jpeg|png)$/i)
 
 ?
 
@@ -790,7 +793,57 @@ typeof answerObj?.answer === "string" &&
 
 :
 
+answerObj.answer.match(/\.(pdf|doc|docx|xls|xlsx)$/i)
+
+?
+
+<div>
+
+  <p
+    style={{
+      color:"#16a34a",
+      fontWeight:"600",
+      marginBottom:"8px"
+    }}
+  >
+    Current File :
+    {" "}
+    {
+      answerObj.answer
+        .split("/")
+        .pop()
+    }
+  </p>
+
+  <a
+    href={`http://localhost:5000${answerObj.answer}`}
+    target="_blank"
+    rel="noreferrer"
+    style={{
+      display:"inline-block",
+      padding:"8px 15px",
+      background:"#2563eb",
+      color:"#fff",
+      textDecoration:"none",
+      borderRadius:"6px",
+      fontWeight:"600"
+    }}
+  >
+    👁 View PDF
+  </a>
+
+</div>
+
+:
+
 String(answerObj.answer)
+
+)
+
+:
+
+String(answerObj.answer)
+
 )
 
 :

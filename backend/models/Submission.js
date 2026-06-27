@@ -30,12 +30,12 @@ const submissionSchema = new mongoose.Schema(
       required: true
     },
 
-    facultyName: {
+  submittedByName: {
   type: String,
   required: true
 },
 
-facultyEmail: {
+submittedByEmail: {
   type: String,
   required: true
 },

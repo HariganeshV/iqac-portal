@@ -93,13 +93,12 @@ if (
   submittedBy:
     req.user._id,
 
-  facultyName:
-    req.user.name,
-
-  facultyEmail:
-    req.user.email,
-
   role,
+  submittedByName:
+  req.user.name,
+
+submittedByEmail:
+  req.user.email,
   school,
   department,
 
@@ -352,11 +351,11 @@ submission.answers =
       submission.department =
         req.body.department;
 
-      submission.facultyName =
-        req.user.name;
+      submission.submittedByName =
+  req.user.name;
 
-      submission.facultyEmail =
-        req.user.email;
+submission.submittedByEmail =
+  req.user.email;
 
       // Re-submit to HOD
 
@@ -406,9 +405,12 @@ async (req, res) => {
   try {
 
     const submission =
-      await Submission.findById(
-        req.params.id
-      );
+  await Submission.findById(
+    req.params.id
+  ).populate(
+    "submittedBy",
+    "name email"
+  );
 
     if (!submission) {
 

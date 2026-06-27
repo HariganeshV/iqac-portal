@@ -5,12 +5,21 @@ import { useAuth } from "../../context/AuthContext";
 
 
 import {
-  getFacultySubmissions
+  getFacultySubmissions,
+  getMyHodSubmissions
 } from "../../api/hodApi";
 
 function HodDashboard() {
 
   const navigate = useNavigate();
+
+  const [facultyReviews,
+  setFacultyReviews] =
+  useState([]);
+
+const [hodSubmissions,
+  setHodSubmissions] =
+  useState([]);
 
   const { user } = useAuth();
 
@@ -26,50 +35,102 @@ function HodDashboard() {
 
   }, []);
 
-  const fetchData =
-    async () => {
+const fetchData =
+  async () => {
 
-      try {
+    try {
 
-        const response =
-          await getFacultySubmissions();
+      const facultyResponse =
+        await getFacultySubmissions();
 
-        setSubmissions(
-          response.data.submissions || []
-        );
+      const hodResponse =
+        await getMyHodSubmissions();
 
-      } catch (error) {
+      setFacultyReviews(
+        facultyResponse.data
+          .submissions || []
+      );
 
-        console.error(error);
+      setHodSubmissions(
+        hodResponse.data
+          .submissions || []
+      );
 
-      } finally {
+    } catch (error) {
 
-        setLoading(false);
+      console.error(error);
 
-      }
+    } finally {
 
-    };
+      setLoading(false);
+
+    }
+
+  };
 
   const pendingReviews =
-    submissions.filter(
+    facultyReviews.filter(
       (s) =>
         s.status ===
         "Pending HOD Approval"
     );
 
   const approvedReviews =
-    submissions.filter(
+    facultyReviews.filter(
       (s) =>
         s.status ===
         "Approved by HOD"
     );
 
   const rejectedReviews =
-    submissions.filter(
+    facultyReviews.filter(
       (s) =>
         s.status ===
         "Rejected by HOD"
     );
+    const approvedCount =
+  hodSubmissions.filter(
+    (s) =>
+      s.status ===
+      "Approved by Dean"
+  ).length;
+
+const rejectedCount =
+  hodSubmissions.filter(
+    (s) =>
+      s.status ===
+      "Rejected by Dean"
+  ).length;
+
+const pendingCount =
+  hodSubmissions.filter(
+    (s) =>
+      s.status ===
+      "Pending Dean Review"
+  ).length;
+
+const submittedCount =
+  hodSubmissions.filter(
+    (s) =>
+      s.status !== "Draft"
+  ).length;
+
+  const draftCount =
+  hodSubmissions.filter(
+    (s) =>
+      s.status ===
+      "Draft"
+  ).length;
+
+const notStartedCount =
+  Math.max(
+    0,
+    4 -
+      (
+        submittedCount +
+        draftCount
+      )
+  );
 
   return (
 
@@ -123,84 +184,7 @@ function HodDashboard() {
 
       </div>
 
-      {/* Statistics */}
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(auto-fit,minmax(250px,1fr))",
-          gap: "20px",
-          marginBottom: "40px"
-        }}
-      >
-
-        <div
-          className="stat-card"
-          onClick={() =>
-  navigate(
-    "/hod/faculty-review?tab=pending"
-  )
-}
-        >
-
-          <h2>
-            {
-              pendingReviews.length
-            }
-          </h2>
-
-          <p>
-            Pending Reviews
-          </p>
-
-        </div>
-
-        <div
-          className="stat-card"
-          onClick={() =>
-  navigate(
-    "/hod/faculty-review?tab=approved"
-  )
-}
-        >
-
-          <h2>
-            {
-              approvedReviews.length
-            }
-          </h2>
-
-          <p>
-            Approved Reviews
-          </p>
-
-        </div>
-
-        <div
-          className="stat-card"
-          onClick={() =>
-  navigate(
-    "/hod/faculty-review?tab=rejected"
-  )
-}
-        >
-
-          <h2>
-            {
-              rejectedReviews.length
-            }
-          </h2>
-
-          <p>
-            Rejected Reviews
-          </p>
-
-        </div>
-
-      </div>
-
-      {/* Quick Actions */}
+          {/* Quick Actions */}
 
       <h2
         style={{
@@ -293,6 +277,226 @@ function HodDashboard() {
         </div>
 
       </div>
+
+      <div
+  style={{
+    display: "grid",
+    gridTemplateColumns:
+      "repeat(auto-fit,minmax(280px,1fr))",
+    gap: "20px",
+    marginBottom: "50px"
+  }}
+></div>
+
+      {/* Statistics */}
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns:
+            "repeat(auto-fit,minmax(250px,1fr))",
+          gap: "20px",
+          marginBottom: "40px"
+        }}
+      >
+
+        <div
+          className="stat-card"
+          onClick={() =>
+  navigate(
+    "/hod/faculty-review?tab=pending"
+  )
+}
+        >
+
+          <h2>
+            {
+              pendingReviews.length
+            }
+          </h2>
+
+          <p>
+            Pending Faculty Reviews
+          </p>
+
+        </div>
+
+        <div
+          className="stat-card"
+          onClick={() =>
+  navigate(
+    "/hod/faculty-review?tab=approved"
+  )
+}
+        >
+
+          <h2>
+            {
+              approvedReviews.length
+            }
+          </h2>
+
+          <p>
+            Approved Faculty Reviews
+          </p>
+
+        </div>
+
+        <div
+          className="stat-card"
+          onClick={() =>
+  navigate(
+    "/hod/faculty-review?tab=rejected"
+  )
+}
+        >
+
+          <h2>
+            {
+              rejectedReviews.length
+            }
+          </h2>
+
+          <p>
+            Rejected Faculty Reviews
+          </p>
+
+        </div>
+
+      </div>
+     <h2
+  style={{
+    marginBottom:"20px"
+  }}
+>
+  HOD Submission Status
+</h2>
+
+<div
+  style={{
+    display:"grid",
+    gridTemplateColumns:
+      "repeat(auto-fit,minmax(250px,1fr))",
+    gap:"20px",
+    marginBottom:"30px"
+  }}
+>
+
+  <div className="stat-card">
+    <h2>{submittedCount}</h2>
+    <p>Submitted Quarters</p>
+  </div>
+
+  <div className="stat-card">
+    <h2>{approvedCount}</h2>
+    <p>Approved</p>
+  </div>
+
+  <div className="stat-card">
+    <h2>{rejectedCount}</h2>
+    <p>Rejected</p>
+  </div>
+
+  <div className="stat-card">
+    <h2>{pendingCount}</h2>
+    <p>Pending Approval</p>
+  </div>
+
+  <div className="stat-card">
+    <h2>{draftCount}</h2>
+    <p>Draft Reports</p>
+  </div>
+
+  <div className="stat-card">
+    <h2>{notStartedCount}</h2>
+    <p>Not Started</p>
+  </div>
+
+</div>
+
+<h2
+  style={{
+    marginBottom:"20px"
+  }}
+>
+  Quarter Status
+</h2>
+
+<div
+  style={{
+    background:"#fff",
+    padding:"25px",
+    borderRadius:"15px",
+    marginBottom:"40px"
+  }}
+>
+
+  {
+  ["Q1","Q2","Q3","Q4"].map(
+    (quarter) => {
+
+      const submission =
+         hodSubmissions.find(
+          (s) =>
+            s.quarter === quarter
+        );
+
+      return (
+
+        <div
+          key={quarter}
+          style={{
+            display:"flex",
+            justifyContent:
+              "space-between",
+            padding:"15px 0",
+            borderBottom:
+              "1px solid #e5e7eb"
+          }}
+        >
+
+          <span>
+            {quarter}
+          </span>
+
+          <strong
+            style={{
+              color:
+                submission?.status === "Draft"
+                  ? "#2563eb"
+                  : submission?.status ===
+                    "Pending Dean Review"
+                  ? "#f59e0b"
+                  : submission?.status ===
+                    "Rejected by Dean"
+                  ? "#ef4444"
+                  : submission?.status ===
+                    "Approved by Dean"
+                  ? "#10b981"
+                  : submission?.status ===
+                    "Submitted to Admin"
+                  ? "#10b981"
+                  : "#6b7280"
+            }}
+          >
+
+            {
+              submission
+                ? submission.status
+                : "Not Started"
+            }
+
+          </strong>
+
+        </div>
+
+      );
+
+    }
+  )
+}
+
+</div>
 
       <style>
 

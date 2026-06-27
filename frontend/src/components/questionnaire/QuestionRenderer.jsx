@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 
 function QuestionRenderer({
   questionData,
   value,
   onChange
 }) {
+  
+  const [replaceMode, setReplaceMode] =
+  useState(false);
 
   const {
     question,
@@ -141,49 +144,107 @@ function QuestionRenderer({
         />
       );
 
-    case "PDF Upload":
+case "PDF Upload":
 case "PDF/Word Upload":
   return (
     <>
-      {value &&
-        typeof value === "string" && (
-          <div
-            style={{
-              marginBottom: "10px",
-              color: "green",
-              fontWeight: "600"
-            }}
-          >
-            Current File :
-            {" "}
-            {value.split("/").pop()}
-          </div>
-        )}
+      {
+        value &&
+typeof value === "string" &&
+!replaceMode ? (
 
-      <input
-        type="file"
-        accept=".pdf,.doc,.docx"
-        onChange={(e) =>
-          onChange(
-            e.target.files[0]
-          )
-        }
-        style={inputStyle}
-      />
-    </>
-  );
-
-  case "Image Upload":
-case "Image Upload (JPG/JPEG/PNG)":
-  return (
-    <>
-      {value &&
-        typeof value === "string" && (
           <div
             style={{
               marginBottom: "10px"
             }}
           >
+
+            <div
+              style={{
+                color: "green",
+                fontWeight: "600",
+                marginBottom: "10px"
+              }}
+            >
+              Current File :
+              {" "}
+              {value.split("/").pop()}
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                alignItems: "center"
+              }}
+            >
+
+              <a
+                href={`http://localhost:5000${value}`}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  color: "#2563eb",
+                  fontWeight: "600",
+                  textDecoration: "none"
+                }}
+              >
+                👁 View File
+              </a>
+
+              <button
+                type="button"
+                onClick={() => {
+
+  setReplaceMode(true);
+
+  onChange(null);
+
+}}
+                style={{
+                  padding: "8px 14px",
+                  cursor: "pointer"
+                }}
+              >
+                🔄 Replace File
+              </button>
+
+            </div>
+
+          </div>
+
+        ) : (
+
+          <input
+            type="file"
+            accept=".pdf,.doc,.docx"
+            onChange={(e)=>{
+
+  setReplaceMode(false);
+
+  onChange(
+    e.target.files[0]
+  );
+
+}}
+            style={inputStyle}
+          />
+
+        )
+      }
+    </>
+  );
+
+case "Image Upload":
+case "Image Upload (JPG/JPEG/PNG)":
+  return (
+    <>
+      {
+        value &&
+typeof value === "string" &&
+!replaceMode ? (
+
+          <div>
 
             <p
               style={{
@@ -195,30 +256,77 @@ case "Image Upload (JPG/JPEG/PNG)":
             </p>
 
             <img
-              src={
-                `http://localhost:5000${value}`
-              }
+              src={`http://localhost:5000${value}`}
               alt="Uploaded"
               style={{
                 maxWidth: "250px",
                 borderRadius: "8px",
-                border: "1px solid #ddd"
+                border: "1px solid #ddd",
+                marginBottom: "10px"
               }}
             />
 
-          </div>
-        )}
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                alignItems: "center"
+              }}
+            >
 
-      <input
-        type="file"
-        accept=".jpg,.jpeg,.png"
-        onChange={(e) =>
-          onChange(
-            e.target.files[0]
-          )
-        }
-        style={inputStyle}
-      />
+              <a
+                href={`http://localhost:5000${value}`}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  color: "#2563eb",
+                  fontWeight: "600",
+                  textDecoration: "none"
+                }}
+              >
+                👁 View Image
+              </a>
+
+              <button
+                type="button"
+                onClick={() => {
+
+  setReplaceMode(true);
+
+  onChange(null);
+
+}}
+                style={{
+                  padding: "8px 14px",
+                  cursor: "pointer"
+                }}
+              >
+                🔄 Replace Image
+              </button>
+
+            </div>
+
+          </div>
+
+        ) : (
+
+          <input
+            type="file"
+            accept=".jpg,.jpeg,.png"
+            onChange={(e)=>{
+
+  setReplaceMode(false);
+
+  onChange(
+    e.target.files[0]
+  );
+
+}}
+            style={inputStyle}
+          />
+
+        )
+      }
     </>
   );
   }
