@@ -7,10 +7,9 @@ const {
   getDepartmentAnalytics,
   getSchoolAnalytics,
   getQuestionAnalytics,
-  getQuestionSummaryAnalytics
-} = require(
-  "../controllers/analyticsController"
-);
+  getQuestionSummaryAnalytics,
+  getHodAnalytics
+} = require("../controllers/analyticsController");
 
 const {
   protect
@@ -91,6 +90,16 @@ router.get(
     "dean"
   ),
   getQuestionSummaryAnalytics
+);
+// ==============================
+// HOD ANALYTICS
+// ==============================
+
+router.get(
+  "/hod",
+  protect,
+  authorize("hod"),
+  getHodAnalytics
 );
 
 module.exports = router;

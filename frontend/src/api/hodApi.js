@@ -70,3 +70,9 @@ API.get(
 responseType:"blob"
 }
 );
+
+export const getHodAnalytics =
+() =>
+API.get(
+"/hod/analytics"
+);

@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 
 import HodLayout from "../../layouts/HodLayout";
 
+import SubmissionViewer
+from "../../components/common/SubmissionViewer";
+
 import {
   getMyHodSubmissions,
   downloadHodPDF
@@ -9,7 +12,7 @@ import {
 
 import { useNavigate } from "react-router-dom";
 
-import facultyQuestions from "../../data/facultyQuestions";
+import hodQuestions from "../../data/hodQuestions";
 import QuestionRenderer from "../../components/questionnaire/QuestionRenderer";
 function HodSubmissions() {
 
@@ -168,23 +171,20 @@ function HodSubmissions() {
   // ANSWER FINDER
   // ===========================
 
-  const getAnswer =
-    (questionNo) => {
+  const getSectionAnswer = (sectionNo) => {
 
-      if (
-        !selectedSubmission
-      )
-        return null;
+  if (!selectedSubmission)
+    return null;
 
-      return (
-        selectedSubmission.answers?.find(
-          answer =>
-            answer.questionNo ===
-            questionNo
-        )?.answer || null
-      );
+  return (
+    selectedSubmission.answers?.find(
+      answer =>
+        String(answer.questionNo) ===
+        String(sectionNo)
+    )?.answer || null
+  );
 
-    };
+};
       return (
 
     <HodLayout>
@@ -491,223 +491,24 @@ function HodSubmissions() {
 
         </table>
               {
-        showModal &&
-        selectedSubmission && (
+showModal && (
 
-          <div
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              background: "rgba(0,0,0,0.5)",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              zIndex: 9999
-            }}
-          >
+<SubmissionViewer
 
-            <div
-              style={{
-                background: "#fff",
-                width: "90%",
-                maxHeight: "90vh",
-                overflowY: "auto",
-                borderRadius: "12px",
-                padding: "25px",
-                position: "relative"
-              }}
-            >
+submission={selectedSubmission}
 
-              <button
-                onClick={() =>
-                  setShowModal(false)
-                }
-                style={{
-                  position: "sticky",
-                  top: 0,
-                  float: "right",
-                  background: "#dc2626",
-                  color: "#fff",
-                  border: "none",
-                  padding: "10px 15px",
-                  borderRadius: "6px",
-                  cursor: "pointer"
-                }}
-              >
-                ✕ Close
-              </button>
+questions={hodQuestions}
 
-              <h2>
-                HOD Submission Details
-              </h2>
+onClose={() =>
 
-              <p>
-                <b>Name :</b>{" "}
-                {
-                  selectedSubmission.submittedByName
-                }
-              </p>
+setShowModal(false)
 
-              <p>
-                <b>Email :</b>{" "}
-                {
-                  selectedSubmission.submittedByEmail
-                }
-              </p>
+}
 
-              <p>
-                <b>Quarter :</b>{" "}
-                {
-                  selectedSubmission.quarter
-                }
-              </p>
+/>
 
-              <p>
-                <b>School :</b>{" "}
-                {
-                  selectedSubmission.school
-                }
-              </p>
-
-              <p>
-                <b>Department :</b>{" "}
-                {
-                  selectedSubmission.department
-                }
-              </p>
-
-              <p>
-                <b>Status :</b>{" "}
-                {
-                  selectedSubmission.status
-                }
-              </p>
-
-              <p>
-                <b>Answered :</b>{" "}
-                {
-                  selectedSubmission.answeredCount
-                }
-              </p>
-
-              <p>
-                <b>Unanswered :</b>{" "}
-                {
-                  selectedSubmission.unansweredCount
-                }
-              </p>
-
-              <hr
-                style={{
-                  margin: "25px 0"
-                }}
-              />
-
-              {
-                facultyQuestions.map(
-                  (section) => (
-
-                    <div
-                      key={section.sectionNo}
-                      style={{
-                        marginBottom: "30px"
-                      }}
-                    >
-
-                      <div
-                        style={{
-                          background:
-                            "#dbeafe",
-                          padding: "12px",
-                          fontWeight: "bold",
-                          fontSize: "18px",
-                          borderRadius: "6px"
-                        }}
-                      >
-
-                        Section {section.sectionNo}
-                        {" - "}
-                        {
-                          section.sectionTitle
-                        }
-
-                      </div>
-
-                      <div
-                        style={{
-                          marginTop: "20px"
-                        }}
-                      >
-
-                        {
-                          section.questions.map(
-                            (
-                              question,
-                              index
-                            ) => {
-
-                              const key =
-`${section.sectionNo}_${index}`;
-
-                              return (
-
-                                <div
-                                  key={key}
-                                  style={{
-                                    marginBottom: "20px",
-                                    padding: "15px",
-                                    border:
-                                      "1px solid #e5e7eb",
-                                    borderRadius: "8px"
-                                  }}
-                                >
-
-                                  <p
-                                    style={{
-                                      fontWeight: "600",
-                                      marginBottom: "10px"
-                                    }}
-                                  >
-                                    {
-                                      question.question
-                                    }
-                                  </p>
-
-                                  <QuestionRenderer
-                                    questionData={question}
-                                    value={getAnswer(key)}
-                                    onChange={() => {}}
-                                  />
-
-                                </div>
-
-                              );
-
-                            }
-
-                          )
-
-                        }
-
-                      </div>
-
-                    </div>
-
-                  )
-
-                )
-
-              }
-
-            </div>
-
-          </div>
-
-        )
-      }
+)
+}
 
     </div>
 

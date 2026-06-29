@@ -20,6 +20,7 @@ import ApprovedReviews from "./pages/hod/ApprovedReviews";
 import RejectedReviews from "./pages/hod/RejectedReviews";
 import HodQuestionnaire from "./pages/hod/HodQuestionnaire";
 import HodSubmissions from "./pages/hod/HodSubmissions";
+import HodAnalytics from "./pages/hod/HodAnalytics";
 
 import DeanDashboard
 from "./pages/dean/DeanDashboard";
@@ -116,6 +117,12 @@ function App() {
   element={<HodSubmissions />}
 />
 
+<Route
+  path="/hod/analytics"
+  element={
+    <HodAnalytics />
+  }
+/>
 <Route
   path="/hod/questionnaire/:id"
   element={

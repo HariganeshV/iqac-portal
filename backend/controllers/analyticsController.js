@@ -1,4 +1,5 @@
 const Submission = require("../models/Submission");
+const User = require("../models/User");
 
 // ==============================
 // OVERALL ANALYTICS
@@ -454,3 +455,63 @@ exports.getQuestionSummaryAnalytics =
 
     }
   };
+// ==============================
+// HOD ANALYTICS
+// ==============================
+
+exports.getHodAnalytics = async (req, res) => {
+
+    try {
+
+        // Logged HOD Details
+
+        const school = req.user.school;
+
+        const department = req.user.department;
+
+        // Faculty List
+
+        const facultyList = await User.find({
+
+            role: "faculty",
+
+            school,
+
+            department
+
+        })
+        .select("name email")
+        .sort({ name: 1 });
+
+        const totalFaculty =
+            facultyList.length;
+
+        return res.status(200).json({
+
+            success: true,
+
+            summary: {
+
+                totalFaculty
+
+            },
+
+            facultyList
+
+        });
+
+    }
+
+    catch(error){
+
+        return res.status(500).json({
+
+            success:false,
+
+            message:error.message
+
+        });
+
+    }
+
+};

@@ -51,7 +51,11 @@ function Sidebar({
   {
     name: "My HOD Submissions",
     path: "/hod/submissions"
-  }
+  },
+  {
+  name: "Analytics",
+  path: "/hod/analytics"
+}
 ],
 
     dean: [

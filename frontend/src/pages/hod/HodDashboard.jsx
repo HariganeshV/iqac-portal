@@ -276,6 +276,28 @@ const notStartedCount =
 
         </div>
 
+        <div
+  className="action-card"
+>
+
+  <h3>
+    📊 Analytics
+  </h3>
+
+  <p>
+    View Department Analytics
+  </p>
+
+  <button
+    onClick={() =>
+      navigate("/hod/analytics")
+    }
+  >
+    Open
+  </button>
+
+</div>
+
       </div>
 
       <div

@@ -12,7 +12,8 @@ const {
   getFacultySubmissions,
   approveSubmission,
   rejectSubmission,
-  updateHodSubmission
+  updateHodSubmission,
+  getHodAnalytics
 } = require(
   "../controllers/hodController"
 );
@@ -86,6 +87,12 @@ router.put(
   "/reject/:id",
   protect,
   rejectSubmission
+);
+
+router.get(
+  "/analytics",
+  protect,
+  getHodAnalytics
 );
 
 module.exports = router;

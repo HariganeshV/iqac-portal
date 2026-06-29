@@ -2,13 +2,19 @@ const Submission = require("../models/Submission");
 
 const path = require("path");
 
-const generatePDF =
+const generateFacultyPDF =
   require("../utils/exportPDF");
+
+const generateHodPDF =
+  require("../utils/exportHodPDF");
 
 const facultyQuestions =
   require(
     "../data/facultyQuestions"
   );
+
+const hodQuestions =
+require("../data/hodQuestions");
 
 // ==============================
 // SAVE DRAFT SUBMISSION
@@ -421,11 +427,31 @@ async (req, res) => {
 
     }
 
-    return generatePDF(
-      res,
-      submission,
-      facultyQuestions
+    if (submission.role === "faculty") {
+
+    return generateFacultyPDF(
+        res,
+        submission,
+        facultyQuestions
     );
+
+}
+
+if (submission.role === "hod") {
+
+    return generateHodPDF(
+        res,
+        submission,
+        hodQuestions
+    );
+
+}
+
+return generateFacultyPDF(
+    res,
+    submission,
+    facultyQuestions
+);
 
   }
 

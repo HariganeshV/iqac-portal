@@ -5,16 +5,16 @@ const fs = require("fs");
 const generatePDF = (
   res,
   submission,
-  facultyQuestions
+  questionsData
 ) => {
 
-  const doc =
-    new PDFDocument({
-      margin:40
-    });
+  const doc = new PDFDocument({
+    margin: 40,
+    size: "A4"
+  });
 
   const filename =
-`${submission.submittedByName || "Faculty"}-${submission.quarter}.pdf`;
+`${submission.submittedByName || submission.role}-${submission.quarter}.pdf`;
 
   res.setHeader(
     "Content-Type",
@@ -28,155 +28,177 @@ const generatePDF = (
 
   doc.pipe(res);
 
-  // ======================
+  // ======================================
+  // CONSTANTS
+  // ======================================
+
+  const PAGE_WIDTH =
+doc.page.width - 40;
+
+  // ======================================
   // HEADER
-  // ======================
+  // ======================================
 
   doc
-  .font("Helvetica-Bold")
-  .fontSize(20)
-  .fillColor("black")
-  .text(
-    "SRIHER IQAC Report",
-    {
-      align:"center"
-    }
-  );
+    .font("Helvetica-Bold")
+    .fontSize(20)
+    .fillColor("#000")
+    .text(
+      "SRIHER IQAC Report",
+      {
+        align: "center"
+      }
+    );
 
   doc.moveDown();
 
   doc
-  .font("Helvetica")
-  .fontSize(12);
+    .font("Helvetica")
+    .fontSize(11)
+    .fillColor("black");
 
   doc.text(
-`Faculty Name : ${submission.submittedByName || "N/A"}`
-);
+    `Name : ${submission.submittedByName || "N/A"}`
+  );
 
   doc.text(
-`Email : ${submission.submittedByEmail || "N/A"}`
-);
+    `Email : ${submission.submittedByEmail || "N/A"}`
+  );
 
   doc.text(
-`School : ${submission.school || "N/A"}`
-);
+    `Role : ${submission.role}`
+  );
 
   doc.text(
-`Department : ${submission.department || "N/A"}`
-);
+    `School : ${submission.school}`
+  );
 
   doc.text(
-`Quarter : ${submission.quarter || "N/A"}`
-);
+    `Department : ${submission.department}`
+  );
 
   doc.text(
-`Status : ${submission.status || "N/A"}`
-);
+    `Quarter : ${submission.quarter}`
+  );
 
   doc.text(
-`Answered : ${submission.answeredCount || 0}`
-);
+    `Status : ${submission.status}`
+  );
 
   doc.text(
-`Unanswered : ${submission.unansweredCount || 0}`
-);
+    `Answered : ${submission.answeredCount}`
+  );
 
   doc.text(
-`Submitted Date : ${
-submission.createdAt
-? new Date(
-submission.createdAt
-).toLocaleDateString("en-GB")
-: "N/A"
-}`
-);
+    `Unanswered : ${submission.unansweredCount}`
+  );
+
+  doc.text(
+    `Submitted Date : ${
+      submission.createdAt
+        ? new Date(
+            submission.createdAt
+          ).toLocaleDateString("en-GB")
+        : "-"
+    }`
+  );
 
   doc.moveDown(2);
 
-  // ======================
+  // ======================================
   // ANSWER MAP
-  // ======================
+  // ======================================
 
   const answerMap = {};
 
   submission.answers?.forEach(
-    (item)=>{
+    (item) => {
 
       answerMap[item.questionNo] =
-      item.answer;
+        item.answer;
 
     }
   );
 
-  // ======================
-  // SECTIONS
-  // ======================
+  // ======================================
+  // START SECTIONS
+  // ======================================
 
-  facultyQuestions.forEach(
-    (section)=>{
+  questionsData.forEach(
+    (section) => {
+            // ======================================
+      // PAGE BREAK BEFORE SECTION
+      // ======================================
 
       if (
-doc.y + 180 >
-doc.page.height - 50
-) {
-doc.addPage();
-}
+        doc.y + 80 >
+        doc.page.height - 60
+      ) {
+
+        doc.addPage();
+
+      }
+
+      // ======================================
+      // SECTION HEADER
+      // ======================================
 
       doc
-      .moveTo(
-        40,
-        doc.y
-      )
-      .lineTo(
-        550,
-        doc.y
-      )
-      .strokeColor("#dc2626")
-      .lineWidth(2)
-      .stroke();
+        .strokeColor("#dc2626")
+        .lineWidth(2)
+        .moveTo(
+          40,
+          doc.y
+        )
+        .lineTo(
+          PAGE_WIDTH,
+          doc.y
+        )
+        .stroke();
 
       doc.moveDown(0.5);
 
       doc
-      .font("Helvetica-Bold")
-      .fontSize(15)
-      .fillColor("#dc2626")
-      .text(
-`Section ${section.sectionNo} - ${section.sectionTitle}`
-);
+        .font("Helvetica-Bold")
+        .fontSize(15)
+        .fillColor("#dc2626")
+        .text(
+          `Section ${section.sectionNo} - ${section.sectionTitle}`,
+          40,
+          doc.y,
+          {
+            width: PAGE_WIDTH - 40,
+            align: "left"
+          }
+        );
 
       doc.moveDown(0.5);
 
       doc
-      .moveTo(
-        40,
-        doc.y
-      )
-      .lineTo(
-        550,
-        doc.y
-      )
-      .strokeColor("#dc2626")
-      .lineWidth(2)
-      .stroke();
+        .strokeColor("#dc2626")
+        .lineWidth(2)
+        .moveTo(
+          40,
+          doc.y
+        )
+        .lineTo(
+          PAGE_WIDTH,
+          doc.y
+        )
+        .stroke();
 
       doc.moveDown();
+
+      // ======================================
+      // QUESTIONS
+      // ======================================
 
       section.questions.forEach(
 
         (
           question,
           index
-        )=>{
-
-          if(
-            doc.y + 120 >
-            doc.page.height - 50
-          ){
-
-            doc.addPage();
-
-          }
+        ) => {
 
           const key =
 `${section.sectionNo}_${index}`;
@@ -184,264 +206,237 @@ doc.addPage();
           const answer =
 answerMap[key];
 
-          const isImageQuestion =
+          const isImage =
 question.answerFormat?.includes(
 "Image"
 );
 
-          const isFileAnswer =
-typeof answer==="string" &&
+          const isFile =
+typeof answer === "string" &&
 answer.startsWith("/uploads/");
 
-          const rowStartY =
-doc.y;
+// Page Break
 
-          // LEFT COLUMN (QUESTION)
+if (
+  doc.y + 150 >
+  doc.page.height - 50
+) {
+  doc.addPage();
+}
+
+// ======================================
+// QUESTION
+// ======================================
+
+doc
+  .font("Helvetica-Bold")
+  .fontSize(11)
+  .fillColor("black")
+  .text(
+    "Question:",
+    40,
+    doc.y
+  );
 
 doc
   .font("Helvetica")
   .fontSize(11)
-  .fillColor("black");
-
-const questionHeight = doc.heightOfString(
-  question.question,
-  {
-    width: 220
-  }
-);
-
-let rowHeight = Math.max(
-  questionHeight,
-  30
-);
-
-if (
-  isImageQuestion &&
-  answer
-) {
-  rowHeight = Math.max(
-    rowHeight,
-    120
+  .text(
+    question.question,
+    {
+      width: 500
+    }
   );
-}
 
-doc.text(
-  question.question,
-  50,
-  rowStartY,
-  {
-    width:220,
-    align:"left"
-  }
-);
-          // ======================
+doc.moveDown(0.3);
+
+doc
+  .font("Helvetica-Bold")
+  .fontSize(11)
+  .text(
+    "Answer:"
+  );
+
+doc
+  .font("Helvetica")
+  .fontSize(11);
+
+          // ======================================
           // IMAGE ANSWER
-          // ======================
-                    if (
-            isImageQuestion &&
+          // ======================================
+
+          if (
+            isImage &&
             answer
           ) {
 
             const imagePath =
               path.join(
                 process.cwd(),
-                answer.replace(
-                  "/",
-                  ""
-                )
+                answer.replace("/", "")
               );
 
             if (
-              fs.existsSync(
-                imagePath
-              )
+              fs.existsSync(imagePath)
             ) {
 
               doc.image(
 imagePath,
-300,
-rowStartY,
+40,
+doc.y,
 {
-fit:[100,100],
-align:"left"
-}
-);
+width:80,
+height:80
+});
 
-              doc.y =
-                rowStartY + 120;
-
-              // Image hyperlink
+// Move cursor below image
+doc.y += 95;
 
               doc
-.fillColor("blue")
-.fontSize(10)
-.text(
+                .fillColor("blue")
+                .fontSize(10)
+                .text(
 "View Image",
-300,
-rowStartY + 105,
 {
-link:`http://localhost:5000${answer}`,
-underline:true
+underline:true,
+link:`http://localhost:5000${answer}`
 }
 );
+
+doc.moveDown(0.5);
 
               doc.fillColor("black");
 
-              doc.moveDown();
 
             }
 
             else {
 
-              doc
-                .font("Helvetica")
-                .fontSize(11)
-                .fillColor("red")
-                .text(
-                  "Image Not Found",
-                  300,
-                  rowStartY
-                );
+             doc
+  .fillColor("red")
+  .fontSize(11)
+  .text(
+    "Image Not Found"
+  );
 
-              doc.y =
-rowStartY +
-rowHeight;
+doc.moveDown(0.5);
+                
 
             }
 
           }
 
-          // ======================
+          // ======================================
+          // FILE ANSWER
+          // ======================================
+
+          else if (
+            isFile
+          ) {
+
+            const ext =
+              path.extname(answer)
+                .toLowerCase();
+
+           let icon = "[FILE]";
+
+if (
+    ext === ".pdf"
+) {
+    icon = "[PDF]";
+}
+
+else if (
+    ext === ".doc" ||
+    ext === ".docx"
+) {
+    icon = "[DOC]";
+}
+
+else if (
+    ext === ".xls" ||
+    ext === ".xlsx"
+) {
+    icon = "[XLS]";
+}
+
+else if (
+    ext === ".jpg" ||
+    ext === ".jpeg" ||
+    ext === ".png"
+) {
+    icon = "[IMG]";
+}
+
+            doc
+              .fillColor("blue")
+              .fontSize(11)
+              .text(
+`${icon} ${path.basename(answer)}`,
+{
+width:500,
+underline:true,
+link:`http://localhost:5000${answer}`
+}
+);
+
+doc.moveDown(0.5);
+
+            doc.fillColor("black");
+          }
+
+          // ======================================
           // NORMAL ANSWER
-          // ======================
+          // ======================================
 
           else {
 
-            if(!isFileAnswer){
+            const displayAnswer =
+              answer
+                ? String(answer)
+                : "Not Answered";
 
-let displayAnswer =
-answer
-? String(answer)
-: "Not Answered";
-
-doc
-.font("Helvetica")
-.fontSize(11)
-.fillColor("black")
-.text(
+            doc
+              .fillColor("black")
+              .fontSize(11)
+              .text(
 displayAnswer,
-300,
-rowStartY
-);
-
-}
-            
-              if(isFileAnswer){
-
-  const fileUrl =
-`http://localhost:5000${answer}`;
-
-  const ext =
-path.extname(answer)
-.toLowerCase();
-
-  let icon = "[PDF]";
-
-if(
-ext === ".doc" ||
-ext === ".docx"
-){
-
-icon = "[DOC]";
-
-}
-
-else if(
-
-ext === ".xls" ||
-ext === ".xlsx"
-
-){
-
-icon = "[XLS]";
-
-}
-
-else if(
-
-ext === ".jpg" ||
-ext === ".jpeg" ||
-ext === ".png"
-
-){
-
-icon = "[IMG]";
-
-}
-
-  doc.moveDown(0.3);
-
-  doc
-.fillColor("blue")
-.fontSize(11)
-.text(
-`${icon} ${path.basename(answer)}`,
-300,          // X position (Answer column)
-rowStartY,    // Y position (same row)
 {
-width:220,
-align:"left",
-link:fileUrl,
-underline:true
+width: PAGE_WIDTH - 40
 }
 );
 
-doc.fillColor("black");
+doc.moveDown(0.5);
 
-doc.y =
-Math.max(
-doc.y,
-rowStartY + 25
-);
-
-  doc.fillColor("black");
-
-}
-
-
-
-doc.y =
-rowStartY + rowHeight;
 
           }
+                    // ======================================
+          // ROW SEPARATOR
+          // ======================================
 
-          // ======================
-          // ROW LINE
-          // ======================
+          doc.moveDown(0.5);
 
-          doc
+doc
 .moveTo(
 40,
-rowStartY + rowHeight + 8
+doc.y
 )
 .lineTo(
-550,
-rowStartY + rowHeight + 8
+PAGE_WIDTH,
+doc.y
 )
 .strokeColor("#dddddd")
 .lineWidth(1)
 .stroke();
 
-doc.y =
-rowStartY + rowHeight + 18;
+doc.moveDown();
 
-          doc.moveDown();
 
         }
 
       );
 
-      doc.moveDown();
+      doc.moveDown(0.5);
 
     }
 

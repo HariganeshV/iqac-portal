@@ -1,5 +1,5 @@
 const Submission = require("../models/Submission");
-
+const User = require("../models/User");
 // ==============================
 // FILE PATH MAPPER
 // ==============================
@@ -709,5 +709,273 @@ newAnswer.answer={};
     });
 
   }
+
+};
+
+exports.getHodAnalytics = async (req, res) => {
+
+    try {
+
+        const hod = req.user;
+
+        const school = hod.school;
+
+        const department = hod.department;
+
+        // =====================================
+        // GET ALL FACULTY OF THIS DEPARTMENT
+        // =====================================
+
+        const facultyList = await User.find({
+
+            role: "faculty",
+
+            school,
+
+            department
+
+        }).select("name email");
+
+        // =====================================
+        // GET ALL SUBMISSIONS
+        // =====================================
+
+        const submissions = await Submission.find({
+
+            role: "faculty",
+
+            school,
+
+            department
+
+        })
+        .select(
+            "submittedBy submittedByName submittedByEmail quarter status answeredCount createdAt"
+        );
+
+        // =====================================
+        // SUMMARY
+        // =====================================
+
+        const summary = {
+
+            totalFaculty: facultyList.length,
+
+            totalSubmitted: 0,
+
+            totalPending: 0,
+
+            totalApproved: 0,
+
+            totalRejected: 0,
+
+            totalNotSubmitted: 0
+
+        };
+
+        const analytics = {};
+        // =====================================
+// QUARTER LOOP
+// =====================================
+
+const quarters = [
+
+    "Q1",
+
+    "Q2",
+
+    "Q3",
+
+    "Q4"
+
+];
+
+for (const quarter of quarters) {
+
+    const submitted = submissions.filter(
+
+        (item) =>
+
+            item.quarter === quarter
+
+    );
+
+    const submittedIds =
+
+        submitted.map(
+
+            (item) =>
+
+                String(item.submittedBy)
+
+        );
+
+    const notSubmitted =
+
+        facultyList.filter(
+
+            (faculty) =>
+
+                !submittedIds.includes(
+
+                    String(faculty._id)
+
+                )
+
+        );
+
+    const pending =
+
+        submitted.filter(
+
+            (item) =>
+
+                item.status ===
+
+                "Pending HOD Approval"
+
+        );
+
+    const approved =
+
+        submitted.filter(
+
+            (item) =>
+
+                item.status ===
+
+                "Approved by HOD"
+
+        );
+
+    const rejected =
+
+        submitted.filter(
+
+            (item) =>
+
+                item.status ===
+
+                "Rejected by HOD"
+
+        );
+
+    analytics[quarter] = {
+
+        submittedCount:
+
+            submitted.length,
+
+        pendingCount:
+
+            pending.length,
+
+        approvedCount:
+
+            approved.length,
+
+        rejectedCount:
+
+            rejected.length,
+
+        notSubmittedCount:
+
+            notSubmitted.length,
+
+        submitted,
+
+        pending,
+
+        approved,
+
+        rejected,
+
+        notSubmitted
+
+    };
+
+    summary.totalSubmitted +=
+
+        submitted.length;
+
+    summary.totalPending +=
+
+        pending.length;
+
+    summary.totalApproved +=
+
+        approved.length;
+
+    summary.totalRejected +=
+
+        rejected.length;
+
+    summary.totalNotSubmitted +=
+
+        notSubmitted.length;
+
+}
+// =====================================
+// BAR CHART DATA
+// =====================================
+
+const chartData = quarters.map((quarter) => ({
+
+    quarter,
+
+    submitted:
+        analytics[quarter].submittedCount,
+
+    pending:
+        analytics[quarter].pendingCount,
+
+    approved:
+        analytics[quarter].approvedCount,
+
+    rejected:
+        analytics[quarter].rejectedCount,
+
+    notSubmitted:
+        analytics[quarter].notSubmittedCount
+
+}));
+
+// =====================================
+// RESPONSE
+// =====================================
+
+return res.status(200).json({
+
+    success: true,
+
+    school,
+
+    department,
+
+    summary,
+
+    facultyList,
+
+    analytics,
+
+    chartData
+
+});
+
+}
+
+catch(error){
+
+    console.error(error);
+
+    return res.status(500).json({
+
+        success:false,
+
+        message:error.message
+
+    });
+
+}
 
 };

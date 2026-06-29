@@ -694,14 +694,9 @@ border:"1px solid #ddd"
 {
 answer?.answer ? (
 
-typeof answer?.answer === "string" &&
-(
-  answer.answer.endsWith(".jpg") ||
-  answer.answer.endsWith(".jpeg") ||
-  answer.answer.endsWith(".png")
-)
+typeof answer.answer === "string" ? (
 
-?
+answer.answer.match(/\.(jpg|jpeg|png)$/i) ? (
 
 <img
 src={`http://localhost:5000${answer.answer}`}
@@ -713,15 +708,55 @@ borderRadius:"8px"
 }}
 />
 
-:
+) : answer.answer.startsWith("/uploads/") ? (
+
+<a
+href={`http://localhost:5000${answer.answer}`}
+target="_blank"
+rel="noopener noreferrer"
+style={{
+color:"#2563eb",
+fontWeight:"600",
+textDecoration:"underline"
+}}
+>
+
+{
+answer.answer.toLowerCase().endsWith(".pdf")
+? "[PDF] View PDF"
+
+: answer.answer.toLowerCase().endsWith(".doc") ||
+answer.answer.toLowerCase().endsWith(".docx")
+
+? "[DOC] View Document"
+
+: answer.answer.toLowerCase().endsWith(".xls") ||
+answer.answer.toLowerCase().endsWith(".xlsx")
+
+? "[XLS] View Excel"
+
+: "[FILE] View File"
+}
+
+</a>
+
+) : (
+
+answer.answer
+
+)
+
+) : (
 
 String(answer.answer)
 
 )
 
-:
+) : (
 
 "Not Answered"
+
+)
 }
 
 </td>
