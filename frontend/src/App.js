@@ -22,8 +22,13 @@ import HodQuestionnaire from "./pages/hod/HodQuestionnaire";
 import HodSubmissions from "./pages/hod/HodSubmissions";
 import HodAnalytics from "./pages/hod/HodAnalytics";
 
-import DeanDashboard
-from "./pages/dean/DeanDashboard";
+import DeanDashboard from "./pages/dean/DeanDashboard";
+import DeanFacultyReview from "./pages/dean/DeanFacultyReview";
+import HodReview from "./pages/dean/HodReview";
+import DeanQuestionnaire from "./pages/dean/DeanQuestionnaire";
+import DeanSubmissions from "./pages/dean/DeanSubmissions";
+import DeanAnalytics from "./pages/dean/DeanAnalytics";
+import DeanFacultyView from "./pages/dean/DeanFacultyView";
 
 import AdminDashboard
 from "./pages/admin/AdminDashboard";
@@ -52,7 +57,7 @@ function App() {
         path="/register"
         element={<Register />}
       />
-
+      {/* FACULTY ROUTES */}
       <Route
         path="/faculty/dashboard"
         element={
@@ -82,7 +87,7 @@ function App() {
           <SubmissionStatus />
         }
       />
-
+      {/* HOD ROUTES */}
       <Route
         path="/hod/dashboard"
         element={
@@ -129,14 +134,46 @@ function App() {
     <HodQuestionnaire />
   }
 />
-
+       {/* DEAN ROUTES */}
       <Route
-        path="/dean/dashboard"
-        element={
-          <DeanDashboard />
-        }
-      />
+  path="/dean/dashboard"
+  element={<DeanDashboard />}
+/>
 
+<Route
+  path="/dean/faculty-review"
+  element={<DeanFacultyReview />}
+/>
+
+<Route
+  path="/dean/hod-review"
+  element={<HodReview />}
+/>
+
+<Route
+  path="/dean/questionnaire"
+  element={<DeanQuestionnaire />}
+/>
+
+<Route
+  path="/dean/questionnaire/:id"
+  element={<DeanQuestionnaire />}
+/>
+
+<Route
+  path="/dean/submissions"
+  element={<DeanSubmissions />}
+/>
+
+<Route
+  path="/dean/analytics"
+  element={<DeanAnalytics />}
+/>
+<Route
+  path="/dean/faculty-view/:id"
+  element={<DeanFacultyView />}
+/>
+          {/* ADMIN ROUTES */}
       <Route
         path="/admin/dashboard"
         element={

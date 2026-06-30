@@ -171,37 +171,58 @@ exports.getHodSubmissions =
 
 exports.getFacultySubmissions =
   async (req, res) => {
+
     try {
+      console.log("Dean User:", req.user);
+
+console.log("Dean School:", req.user.school);
 
       const submissions =
         await Submission.find({
+
           role: "faculty",
-          status:
-            "Approved by HOD"
+
+          school: req.user.school,
+
+          status: "Approved by HOD"
+
         })
-          .populate(
-            "submittedBy",
-            "name email school department designation employeeId"
-          )
-          .sort({
-            createdAt: -1
-          });
+
+        .populate(
+          "submittedBy",
+          "name email school department"
+        )
+
+        .sort({
+          department: 1,
+          createdAt: -1
+        });
+        console.log(submissions); 
 
       res.status(200).json({
+
         success: true,
+
         count: submissions.length,
+
         submissions
-      });
 
-    } catch (error) {
-
-      res.status(500).json({
-        success: false,
-        message:
-          error.message
       });
 
     }
+
+    catch (error) {
+
+      res.status(500).json({
+
+        success: false,
+
+        message: error.message
+
+      });
+
+    }
+
   };
 
 // ==============================
@@ -290,3 +311,37 @@ exports.rejectSubmission =
       });
     }
   };
+
+  exports.getFacultySubmissionById = async (req, res) => {
+
+  try {
+
+    const submission =
+      await Submission.findById(req.params.id);
+
+    if (!submission) {
+
+      return res.status(404).json({
+        success:false,
+        message:"Submission not found"
+      });
+
+    }
+
+    res.json({
+      success:true,
+      submission
+    });
+
+  }
+
+  catch(error){
+
+    res.status(500).json({
+      success:false,
+      message:error.message
+    });
+
+  }
+
+};

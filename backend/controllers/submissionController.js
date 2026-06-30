@@ -82,7 +82,6 @@ if (
   );
 
 }
-
     const submission =
       await Submission.findOneAndUpdate(
 

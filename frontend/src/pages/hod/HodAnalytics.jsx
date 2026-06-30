@@ -1,25 +1,69 @@
 import React, {
     useEffect,
-    useMemo,
     useState
 } from "react";
 
 import HodLayout from "../../layouts/HodLayout";
-import AnalyticsBarChart from "../../components/charts/BarChart";
-import HodSummaryCards from "../../components/dashboard/HodSummaryCards";
+
+import AnalyticsBarChart
+from "../../components/charts/BarChart";
+
+import QuarterSelector
+from "../../components/analytics/QuarterSelector";
+
+import SummaryCards
+from "../../components/analytics/SummaryCards";
+
+import SubmissionTabs
+from "../../components/analytics/SubmissionTabs";
+
+import SubmissionTable
+from "../../components/analytics/SubmissionTable";
+
+import NotSubmittedTable
+from "../../components/analytics/NotSubmittedTable";
 
 import {
-    getHodAnalytics
-} from "../../api/analyticsApi";
+
+    getHodAnalytics,
+
+    downloadFacultyPDF
+
+} from "../../api/hodApi";
 
 function HodAnalytics() {
 
-    const [data, setData] = useState(null);
+    const [
 
-    const [loading, setLoading] = useState(true);
+        analytics,
 
-    const [selectedQuarter, setSelectedQuarter] =
-        useState("Q1");
+        setAnalytics
+
+    ] = useState(null);
+
+    const [
+
+        loading,
+
+        setLoading
+
+    ] = useState(true);
+
+    const [
+
+        selectedQuarter,
+
+        setSelectedQuarter
+
+    ] = useState("Q1");
+
+    const [
+
+        selectedTab,
+
+        setSelectedTab
+
+    ] = useState("submitted");
 
     useEffect(() => {
 
@@ -34,9 +78,9 @@ function HodAnalytics() {
             const res =
                 await getHodAnalytics();
 
-            console.log("FULL RESPONSE:", res.data);
-
-            setData(res.data);
+            setAnalytics(
+                res.data
+            );
 
         }
 
@@ -54,19 +98,6 @@ function HodAnalytics() {
 
     };
 
-    const selectedQuarterData =
-        useMemo(() => {
-
-            return (
-                data?.chartData?.find(
-                    (q) =>
-                        q.quarter ===
-                        selectedQuarter
-                ) || null
-            );
-
-        }, [data, selectedQuarter]);
-
     if (loading) {
 
         return (
@@ -80,7 +111,9 @@ function HodAnalytics() {
                 >
 
                     <h2>
+
                         Loading Analytics...
+
                     </h2>
 
                 </div>
@@ -91,7 +124,115 @@ function HodAnalytics() {
 
     }
 
-    return (
+    const quarter =
+
+    analytics?.analytics?.[
+        selectedQuarter
+    ];
+
+    const summary = {
+
+        totalFaculty:
+
+            analytics.summary.totalFaculty,
+
+        totalSubmitted:
+    quarter?.submittedCount || 0,
+
+totalPending:
+    quarter?.pendingCount || 0,
+
+totalApproved:
+    quarter?.approvedCount || 0,
+
+totalRejected:
+    quarter?.rejectedCount || 0,
+
+totalNotSubmitted:
+    quarter?.notSubmittedCount || 0
+
+    };
+
+    const getCurrentData = () => {
+
+        switch (selectedTab) {
+
+            case "submitted":
+
+               return quarter?.submitted || [];
+
+            case "pending":
+
+                return quarter?.pending || [];
+
+            case "approved":
+
+                return quarter?.approved || [];
+
+            case "rejected":
+
+                return quarter?.rejected || [];
+
+            default:
+
+                return [];
+
+        }
+
+    };
+
+    const handleDownload =
+
+        async (
+
+            submission
+
+        ) => {
+
+            try {
+
+                const res =
+
+                    await downloadFacultyPDF(
+
+                        submission._id
+
+                    );
+
+                const url =
+
+                    window.URL.createObjectURL(
+
+                        new Blob([
+
+                            res.data
+
+                        ])
+
+                    );
+
+                const link =
+
+                    document.createElement("a");
+
+                link.href = url;
+
+                link.download =
+
+                    `${submission.submittedByName}.pdf`;
+
+                link.click();
+
+            }
+
+            catch (err) {
+
+                console.log(err);
+
+            }
+
+        };
+            return (
 
         <HodLayout>
 
@@ -105,7 +246,7 @@ function HodAnalytics() {
 
                 <h1
                     style={{
-                        marginBottom: "20px"
+                        marginBottom: "15px"
                     }}
                 >
                     📊 HOD Analytics
@@ -113,95 +254,19 @@ function HodAnalytics() {
 
                 <hr
                     style={{
-                        marginBottom: "30px"
+                        marginBottom: "25px"
                     }}
                 />
 
-                {/* Quarter Selector */}
-
-                <div
-                    style={{
-                        display: "flex",
-                        gap: "15px",
-                        marginBottom: "30px",
-                        flexWrap: "wrap"
-                    }}
-                >
-
-                    {
-
-                        ["Q1", "Q2", "Q3", "Q4"].map(
-
-                            (quarter) => (
-
-                                <button
-
-                                    key={quarter}
-
-                                    onClick={() =>
-                                        setSelectedQuarter(
-                                            quarter
-                                        )
-                                    }
-
-                                    style={{
-
-                                        padding:
-                                            "12px 28px",
-
-                                        border: "none",
-
-                                        borderRadius:
-                                            "10px",
-
-                                        cursor: "pointer",
-
-                                        fontSize: "16px",
-
-                                        fontWeight:
-                                            "bold",
-
-                                        background:
-
-                                            selectedQuarter ===
-                                            quarter
-
-                                                ? "#2563eb"
-
-                                                : "#e5e7eb",
-
-                                        color:
-
-                                            selectedQuarter ===
-                                            quarter
-
-                                                ? "#fff"
-
-                                                : "#111827"
-
-                                    }}
-
-                                >
-
-                                    {quarter}
-
-                                </button>
-
-                            )
-
-                        )
-
-                    }
-
-                </div>
-
-                {/* Current Quarter */}
+                {/* ========================= */}
+                {/* Faculty Overview */}
+                {/* ========================= */}
 
                 <div
                     style={{
                         background: "#fff",
-                        padding: "20px",
-                        borderRadius: "12px",
+                        padding: "25px",
+                        borderRadius: "15px",
                         marginBottom: "30px",
                         boxShadow:
                             "0 4px 12px rgba(0,0,0,.08)"
@@ -210,124 +275,33 @@ function HodAnalytics() {
 
                     <h2>
 
-                        {selectedQuarter}
-
-                        {" "}
-
-                        Analytics
+                        Faculty Overview
 
                     </h2>
 
                     <p>
 
-                        Submitted :
+                        <strong>
+
+                            Total Faculty :
+
+                        </strong>
 
                         {" "}
 
                         {
 
-                            selectedQuarterData?.submitted || 0
+                            analytics.summary.totalFaculty
 
                         }
 
                     </p>
-
-                    <p>
-
-                        Pending :
-
-                        {" "}
-
-                        {
-
-                            selectedQuarterData?.pending || 0
-
-                        }
-
-                    </p>
-
-                    <p>
-
-                        Approved :
-
-                        {" "}
-
-                        {
-
-                            selectedQuarterData?.approved || 0
-
-                        }
-
-                    </p>
-
-                    <p>
-
-                        Rejected :
-
-                        {" "}
-
-                        {
-
-                            selectedQuarterData?.rejected || 0
-
-                        }
-
-                    </p>
-
-                    <p>
-
-                        Not Submitted :
-
-                        {" "}
-
-                        {
-
-                            selectedQuarterData?.notSubmitted || 0
-
-                        }
-
-                    </p>
-
-                </div>
-
-                {/* Summary */}
-
-                <HodSummaryCards
-                    summary={data?.summary}
-                />
-
-                {/* Chart */}
-
-                <AnalyticsBarChart
-                    data={data?.chartData || []}
-                />
-
-                {/* Faculty */}
-
-                <div
-                    style={{
-                        background: "#fff",
-                        borderRadius: "15px",
-                        padding: "25px",
-                        marginTop: "35px",
-                        boxShadow:
-                            "0 4px 12px rgba(0,0,0,.08)"
-                    }}
-                >
-
-                    <h2
-                        style={{
-                            marginBottom: "20px"
-                        }}
-                    >
-                        Faculty List
-                    </h2>
 
                     <table
                         style={{
                             width: "100%",
-                            borderCollapse:
-                                "collapse"
+                            borderCollapse: "collapse",
+                            marginTop: "20px"
                         }}
                     >
 
@@ -335,16 +309,14 @@ function HodAnalytics() {
 
                             <tr
                                 style={{
-                                    background:
-                                        "#2563eb",
+                                    background: "#2563eb",
                                     color: "#fff"
                                 }}
                             >
 
                                 <th
                                     style={{
-                                        padding:
-                                            "12px"
+                                        padding: "12px"
                                     }}
                                 >
                                     Faculty Name
@@ -352,11 +324,18 @@ function HodAnalytics() {
 
                                 <th
                                     style={{
-                                        padding:
-                                            "12px"
+                                        padding: "12px"
                                     }}
                                 >
                                     Email
+                                </th>
+
+                                <th
+                                    style={{
+                                        padding: "12px"
+                                    }}
+                                >
+                                    Department
                                 </th>
 
                             </tr>
@@ -367,9 +346,13 @@ function HodAnalytics() {
 
                             {
 
-                                data?.facultyList?.map(
+                                analytics.facultyList.map(
 
-                                    (faculty) => (
+                                    (
+
+                                        faculty
+
+                                    ) => (
 
                                         <tr
                                             key={
@@ -379,32 +362,46 @@ function HodAnalytics() {
 
                                             <td
                                                 style={{
-                                                    padding:
-                                                        "12px",
+                                                    padding: "12px",
                                                     borderBottom:
-                                                        "1px solid #e5e7eb"
+                                                        "1px solid #ddd"
                                                 }}
                                             >
-
                                                 {
-                                                    faculty.name
-                                                }
 
+                                                    faculty.name
+
+                                                }
                                             </td>
 
                                             <td
                                                 style={{
-                                                    padding:
-                                                        "12px",
+                                                    padding: "12px",
                                                     borderBottom:
-                                                        "1px solid #e5e7eb"
+                                                        "1px solid #ddd"
                                                 }}
                                             >
-
                                                 {
-                                                    faculty.email
-                                                }
 
+                                                    faculty.email
+
+                                                }
+                                            </td>
+
+                                            <td
+                                                style={{
+                                                    padding: "12px",
+                                                    borderBottom:
+                                                        "1px solid #ddd"
+                                                }}
+                                            >
+                                                {
+    faculty.department ||
+
+    analytics.department ||
+
+    "-"
+}
                                             </td>
 
                                         </tr>
@@ -421,6 +418,118 @@ function HodAnalytics() {
 
                 </div>
 
+                {/* ========================= */}
+                {/* Bar Chart */}
+                {/* ========================= */}
+
+                <AnalyticsBarChart
+
+                    data={analytics.chartData}
+
+                />
+
+                {/* ========================= */}
+                {/* Quarter Selector */}
+                {/* ========================= */}
+
+                <QuarterSelector
+
+                    selectedQuarter={
+                        selectedQuarter
+                    }
+
+                    setSelectedQuarter={
+                        setSelectedQuarter
+                    }
+
+                />
+
+                {/* ========================= */}
+                {/* Summary Cards */}
+                {/* ========================= */}
+
+                <SummaryCards
+
+                    summary={summary}
+
+                />
+
+                {/* ========================= */}
+                {/* Tabs */}
+                {/* ========================= */}
+
+                <SubmissionTabs
+
+    activeTab={selectedTab}
+
+    setActiveTab={setSelectedTab}
+
+    counts={{
+
+    submitted: quarter?.submittedCount || 0,
+
+    pending: quarter?.pendingCount || 0,
+
+    approved: quarter?.approvedCount || 0,
+
+    rejected: quarter?.rejectedCount || 0,
+
+    notSubmitted: quarter?.notSubmittedCount || 0
+
+}}
+
+/>
+                                {/* ========================= */}
+                {/* Tables */}
+                {/* ========================= */}
+
+                {
+
+                    selectedTab === "notSubmitted"
+
+                        ? (
+
+                            <NotSubmittedTable
+
+    facultyList={
+
+        quarter?.notSubmitted || []
+
+    }
+
+/>
+
+                        )
+
+                        : (
+
+                            <SubmissionTable
+
+    submissions={
+
+        getCurrentData()
+
+    }
+
+    showRemarks={
+
+        selectedTab === "rejected"
+
+    }
+
+    onDownload={
+
+        handleDownload
+
+    }
+
+/>
+
+                        )
+
+                }
+
+               
             </div>
 
         </HodLayout>

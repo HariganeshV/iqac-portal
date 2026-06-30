@@ -1,5 +1,8 @@
 const Submission = require("../models/Submission");
 const User = require("../models/User");
+const {
+    buildHodAnalytics
+} = require("../utils/hodAnalyticsHelper");
 
 // ==============================
 // OVERALL ANALYTICS
@@ -463,52 +466,34 @@ exports.getHodAnalytics = async (req, res) => {
 
     try {
 
-        // Logged HOD Details
+        const analytics =
+            await buildHodAnalytics(
+                req.user
+            );
 
-        const school = req.user.school;
-
-        const department = req.user.department;
-
-        // Faculty List
-
-        const facultyList = await User.find({
-
-            role: "faculty",
-
-            school,
-
-            department
-
-        })
-        .select("name email")
-        .sort({ name: 1 });
-
-        const totalFaculty =
-            facultyList.length;
+        // 👇 Temporary Debug
+        console.log("HOD Analytics Response:");
+        console.log(analytics);
 
         return res.status(200).json({
 
             success: true,
 
-            summary: {
-
-                totalFaculty
-
-            },
-
-            facultyList
+            ...analytics
 
         });
 
     }
 
-    catch(error){
+    catch (error) {
+
+        console.log(error);
 
         return res.status(500).json({
 
-            success:false,
+            success: false,
 
-            message:error.message
+            message: error.message
 
         });
 

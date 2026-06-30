@@ -59,19 +59,31 @@ function Sidebar({
 ],
 
     dean: [
-      {
-        name: "Dashboard",
-        path: "/dean/dashboard"
-      },
-      {
-        name: "Faculty Review",
-        path: "/dean/faculty-review"
-      },
-      {
-        name: "HOD Review",
-        path: "/dean/hod-review"
-      }
-    ],
+  {
+    name: "Dashboard",
+    path: "/dean/dashboard"
+  },
+  {
+    name: "Faculty Review",
+    path: "/dean/faculty-review"
+  },
+  {
+    name: "HOD Review",
+    path: "/dean/hod-review"
+  },
+  {
+    name: "Dean Questionnaire",
+    path: "/dean/questionnaire"
+  },
+  {
+    name: "My Dean Submissions",
+    path: "/dean/submissions"
+  },
+  {
+    name: "Analytics",
+    path: "/dean/analytics"
+  }
+],
 
     admin: [
       {

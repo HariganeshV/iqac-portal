@@ -8,6 +8,8 @@ const {
   submitDeanSubmission,
 
   getFacultySubmissions,
+  getFacultySubmissionById,
+
   getHodSubmissions,
 
   approveSubmission,
@@ -86,4 +88,9 @@ router.put(
   rejectSubmission
 );
 
+router.get(
+  "/faculty-submission/:id",
+  protect,
+  getFacultySubmissionById
+);
 module.exports = router;

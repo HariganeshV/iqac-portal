@@ -742,16 +742,29 @@ exports.getHodAnalytics = async (req, res) => {
 
         const submissions = await Submission.find({
 
-            role: "faculty",
+    role: "faculty",
 
-            school,
+    school,
 
-            department
+    department
 
-        })
-        .select(
-            "submittedBy submittedByName submittedByEmail quarter status answeredCount createdAt"
-        );
+})
+.select(`
+submittedBy
+submittedByName
+submittedByEmail
+school
+department
+quarter
+status
+answeredCount
+totalQuestions
+createdAt
+answers
+tableData
+uploadedFiles
+hodRemarks
+`);
 
         // =====================================
         // SUMMARY
@@ -792,13 +805,23 @@ const quarters = [
 
 for (const quarter of quarters) {
 
-    const submitted = submissions.filter(
+    const submitted = submissions
+    .filter(
+        (item) => item.quarter === quarter
+    )
+    .map((item) => ({
+        ...item.toObject(),
 
-        (item) =>
+        answers: item.answers || [],
 
-            item.quarter === quarter
+        tableData: item.tableData || {},
 
-    );
+        uploadedFiles: item.uploadedFiles || [],
+
+        totalQuestions: item.totalQuestions || 0,
+
+        hodRemarks: item.hodRemarks || ""
+    }));
 
     const submittedIds =
 
@@ -894,25 +917,29 @@ for (const quarter of quarters) {
 
     };
 
-    summary.totalSubmitted +=
+    // Summary should represent CURRENT quarter only
+// Change currentQuarter based on your requirement
 
+const currentQuarter = "Q1";
+
+if (quarter === currentQuarter) {
+
+    summary.totalSubmitted =
         submitted.length;
 
-    summary.totalPending +=
-
+    summary.totalPending =
         pending.length;
 
-    summary.totalApproved +=
-
+    summary.totalApproved =
         approved.length;
 
-    summary.totalRejected +=
-
+    summary.totalRejected =
         rejected.length;
 
-    summary.totalNotSubmitted +=
-
+    summary.totalNotSubmitted =
         notSubmitted.length;
+
+}
 
 }
 // =====================================
