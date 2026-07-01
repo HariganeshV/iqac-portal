@@ -29,6 +29,7 @@ import DeanQuestionnaire from "./pages/dean/DeanQuestionnaire";
 import DeanSubmissions from "./pages/dean/DeanSubmissions";
 import DeanAnalytics from "./pages/dean/DeanAnalytics";
 import DeanFacultyView from "./pages/dean/DeanFacultyView";
+import DeanHodView from "./pages/dean/DeanHodView";
 
 import AdminDashboard
 from "./pages/admin/AdminDashboard";
@@ -172,6 +173,10 @@ function App() {
 <Route
   path="/dean/faculty-view/:id"
   element={<DeanFacultyView />}
+/>
+<Route
+  path="/dean/hod-view/:id"
+  element={<DeanHodView />}
 />
           {/* ADMIN ROUTES */}
       <Route

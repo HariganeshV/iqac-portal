@@ -7,15 +7,19 @@ import {
   getFacultySubmissionById
 } from "../../api/deanApi";
 
+import facultyQuestions from "../../data/facultyQuestions";
+
 function DeanFacultyView() {
 
   const { id } = useParams();
 
   const navigate = useNavigate();
 
-  const [submission, setSubmission] = useState(null);
+  const [submission, setSubmission] =
+    useState(null);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] =
+    useState(true);
 
   useEffect(() => {
 
@@ -23,30 +27,37 @@ function DeanFacultyView() {
 
   }, []);
 
-  const loadSubmission = async () => {
+  const loadSubmission =
+    async () => {
 
-    try {
+      try {
 
-      const res =
-        await getFacultySubmissionById(id);
+        const res =
+          await getFacultySubmissionById(id);
 
-      setSubmission(res.data.submission);
+        setSubmission(
+          res.data.submission
+        );
 
-    }
+      }
 
-    catch (err) {
+      catch (error) {
 
-      console.error(err);
+        console.error(error);
 
-    }
+      }
 
-    finally {
+      finally {
 
-      setLoading(false);
+        setLoading(false);
 
-    }
+      }
 
-  };
+    };
+
+  // ============================
+  // LOADING
+  // ============================
 
   if (loading) {
 
@@ -54,8 +65,17 @@ function DeanFacultyView() {
 
       <DeanLayout>
 
-        <div style={{ padding: 40 }}>
-          Loading...
+        <div
+          style={{
+            padding: "50px",
+            textAlign: "center",
+            fontSize: "22px",
+            fontWeight: "600"
+          }}
+        >
+
+          Loading Faculty Submission...
+
         </div>
 
       </DeanLayout>
@@ -63,6 +83,10 @@ function DeanFacultyView() {
     );
 
   }
+
+  // ============================
+  // NOT FOUND
+  // ============================
 
   if (!submission) {
 
@@ -70,8 +94,17 @@ function DeanFacultyView() {
 
       <DeanLayout>
 
-        <div style={{ padding: 40 }}>
+        <div
+          style={{
+            padding: "50px",
+            textAlign: "center",
+            color: "red",
+            fontSize: "22px"
+          }}
+        >
+
           Submission Not Found
+
         </div>
 
       </DeanLayout>
@@ -80,64 +113,198 @@ function DeanFacultyView() {
 
   }
 
+  // ============================
+  // ANSWER SEARCH
+  // ============================
+
+  const getAnswer = (sectionNo, questionIndex) => {
+
+    const key =
+      `${sectionNo}_${questionIndex}`;
+
+    return submission.answers.find(
+
+      (item) =>
+        item.questionNo === key
+
+    );
+
+  };
+
+  // ============================
+  // FILE TYPE
+  // ============================
+
+  const renderAnswer = (value) => {
+
+    if (!value) {
+
+      return (
+
+        <span
+          style={{
+            color: "#dc2626",
+            fontWeight: "600"
+          }}
+        >
+          Not Answered
+        </span>
+
+      );
+
+    }
+
+    if (
+      value.endsWith(".jpg") ||
+      value.endsWith(".jpeg") ||
+      value.endsWith(".png")
+    ) {
+
+      return (
+
+        <a
+          href={`http://localhost:5000${value}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+
+          <img
+            src={`http://localhost:5000${value}`}
+            alt=""
+            style={{
+              width: "110px",
+              borderRadius: "8px",
+              border: "1px solid #ddd"
+            }}
+          />
+
+        </a>
+
+      );
+
+    }
+
+    if (
+
+      value.endsWith(".pdf") ||
+
+      value.endsWith(".doc") ||
+
+      value.endsWith(".docx")
+
+    ) {
+
+      return (
+
+        <a
+          href={`http://localhost:5000${value}`}
+          target="_blank"
+          rel="noreferrer"
+          style={{
+            color: "#2563eb",
+            fontWeight: "600",
+            textDecoration: "none"
+          }}
+        >
+
+          📄 View File
+
+        </a>
+
+      );
+
+    }
+
+    return value;
+
+  };
+
+  // ============================
+  // TOTAL QUESTIONS
+  // ============================
+
+  const totalQuestions =
+    facultyQuestions.reduce(
+
+      (total, section) =>
+
+        total + section.questions.length,
+
+      0
+
+    );
+
   return (
 
     <DeanLayout>
+      <button
+  onClick={() => navigate(-1)}
+  style={{
+    position: "fixed",
+    top: "80px",
+    right: "30px",
+    zIndex: 9999,
+
+    background: "#2563eb",
+    color: "#fff",
+
+    border: "none",
+
+    padding: "12px 20px",
+
+    borderRadius: "50px",
+
+    fontWeight: "600",
+
+    fontSize: "16px",
+
+    cursor: "pointer",
+
+    boxShadow: "0 8px 20px rgba(37,99,235,.35)"
+  }}
+>
+  ← Back
+</button>
 
       <div
         style={{
-          padding: "35px",
-          maxWidth: "1300px",
-          margin: "0 auto"
+          maxWidth: "1350px",
+          margin: "0 auto",
+          padding: "30px"
         }}
-      >
+      >    
 
-        <button
-          onClick={() => navigate(-1)}
-          style={{
-            background: "#2563eb",
-            color: "#fff",
-            border: "none",
-            padding: "10px 18px",
-            borderRadius: "8px",
-            cursor: "pointer",
-            marginBottom: "25px"
-          }}
-        >
-          ← Back
-        </button>
+        {/* ============================
+            PAGE TITLE
+        ============================ */}
 
         <h1
           style={{
-            marginBottom: "25px",
-            color: "#1e293b"
+            color: "#1e3a8a",
+            marginBottom: "25px"
           }}
         >
-          Faculty Submission Details
+          Faculty Submission
         </h1>
+
+        {/* ============================
+            INFORMATION CARD
+        ============================ */}
 
         <div
           style={{
             background: "#fff",
             borderRadius: "12px",
-            boxShadow: "0 2px 8px rgba(0,0,0,.08)",
             padding: "25px",
+            boxShadow: "0 2px 8px rgba(0,0,0,.08)",
             marginBottom: "35px"
           }}
         >
 
-          <h2
-            style={{
-              marginBottom: "20px",
-              color: "#2563eb"
-            }}
-          >
-            Faculty Information
-          </h2>
-
           <table
             style={{
-              width: "100%"
+              width: "100%",
+              borderCollapse: "collapse"
             }}
           >
 
@@ -168,27 +335,48 @@ function DeanFacultyView() {
                 value={submission.quarter}
               />
 
+              <InfoRow
+                title="Total Questions"
+                value={submission.totalQuestions || totalQuestions}
+              />
+
+              <InfoRow
+                title="Answered Count"
+                value={submission.answeredCount}
+              />
+
+              <InfoRow
+                title="Unanswered Count"
+                value={submission.unansweredCount}
+              />
+
               <tr>
 
                 <td
-                  style={infoTitle}
+                  style={{
+                    padding: "12px",
+                    fontWeight: "700",
+                    width: "240px"
+                  }}
                 >
                   Status
                 </td>
 
                 <td
-                  style={infoValue}
+                  style={{
+                    padding: "12px"
+                  }}
                 >
 
                   <span
                     style={{
                       background:
-                        "#16a34a",
+                        submission.status === "Approved by HOD"
+                          ? "#16a34a"
+                          : "#dc2626",
                       color: "#fff",
-                      padding:
-                        "6px 12px",
-                      borderRadius:
-                        "20px",
+                      padding: "6px 14px",
+                      borderRadius: "20px",
                       fontWeight: "600"
                     }}
                   >
@@ -205,75 +393,90 @@ function DeanFacultyView() {
 
         </div>
 
+        {/* ============================
+            FACULTY QUESTIONS
+        ============================ */}
+
         <h2
           style={{
-            marginBottom: "20px",
-            color: "#2563eb"
+            color: "#2563eb",
+            marginBottom: "20px"
           }}
         >
-          Faculty Answers
+          Faculty Questionnaire
         </h2>
+                {facultyQuestions.map((section) => (
 
-        <div
-          style={{
-            overflowX: "auto",
-            background: "#fff",
-            borderRadius: "12px",
-            boxShadow:
-              "0 2px 8px rgba(0,0,0,.08)"
-          }}
-        >
-
-          <table
+          <div
+            key={section.sectionNo}
             style={{
-              width: "100%",
-              borderCollapse: "collapse"
+              background: "#fff",
+              borderRadius: "12px",
+              marginBottom: "35px",
+              boxShadow: "0 2px 8px rgba(0,0,0,.08)",
+              overflow: "hidden"
             }}
           >
 
-            <thead>
+            {/* SECTION HEADER */}
 
-              <tr
-                style={{
-                  background:
-                    "#2563eb",
-                  color: "#fff"
-                }}
-              >
+            <div
+              style={{
+                background: "#2563eb",
+                color: "#fff",
+                padding: "16px 22px",
+                fontSize: "20px",
+                fontWeight: "700"
+              }}
+            >
+              Section {section.sectionNo} : {section.sectionTitle}
+            </div>
 
-                <th style={thStyle}>
-                  S.No
-                </th>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse"
+              }}
+            >
 
-                <th style={thStyle}>
-                  Question
-                </th>
+              <thead>
 
-                <th style={thStyle}>
-                  Response
-                </th>
+                <tr
+                  style={{
+                    background: "#dbeafe"
+                  }}
+                >
 
-              </tr>
+                  <th style={thStyle}>
+                    Question No
+                  </th>
 
-            </thead>
+                  <th style={thStyle}>
+                    Question
+                  </th>
 
-            <tbody>
+                  <th style={thStyle}>
+                    Answer
+                  </th>
 
-              {submission.answers.map(
-                (answer, index) => {
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                {section.questions.map((question, index) => {
+
+                  const answerObj =
+                    getAnswer(
+                      section.sectionNo,
+                      index
+                    );
 
                   const value =
-                    answer.answer || "";
-
-                  const isImage =
-                    value.endsWith(".jpg") ||
-                    value.endsWith(".jpeg") ||
-                    value.endsWith(".png");
-
-                  const isFile =
-                    value.endsWith(".pdf") ||
-                    value.endsWith(".doc") ||
-                    value.endsWith(".docx");
+                    answerObj
+                      ? answerObj.answer
+                      : "";
 
                   return (
 
@@ -282,63 +485,34 @@ function DeanFacultyView() {
                     >
 
                       <td style={tdStyle}>
-                        {index + 1}
-                      </td>
-
-                      <td style={tdStyle}>
-                        {answer.question}
+                        {section.sectionNo}.{index + 1}
                       </td>
 
                       <td style={tdStyle}>
 
-                        {
+                        <div
+                          style={{
+                            fontWeight: "600",
+                            marginBottom: "4px"
+                          }}
+                        >
+                          {question.question}
+                        </div>
 
-                          isImage ?
+                        <div
+                          style={{
+                            color: "#6b7280",
+                            fontSize: "13px"
+                          }}
+                        >
+                          {question.answerFormat}
+                        </div>
 
-                          <a
-                            href={`http://localhost:5000${value}`}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            <img
-                              src={`http://localhost:5000${value}`}
-                              alt=""
-                              style={{
-                                width: "90px",
-                                height: "90px",
-                                objectFit: "cover",
-                                borderRadius: "8px",
-                                border:
-                                  "1px solid #ddd"
-                              }}
-                            />
-                          </a>
+                      </td>
 
-                          :
+                      <td style={tdStyle}>
 
-                          isFile ?
-
-                          <a
-                            href={`http://localhost:5000${value}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            style={{
-                              color:
-                                "#2563eb",
-                              fontWeight:
-                                "600",
-                              textDecoration:
-                                "none"
-                            }}
-                          >
-                            📄 View File
-                          </a>
-
-                          :
-
-                          value
-
-                        }
+                        {renderAnswer(value)}
 
                       </td>
 
@@ -346,17 +520,16 @@ function DeanFacultyView() {
 
                   );
 
-                }
+                })}
 
-              )}
+              </tbody>
 
-            </tbody>
+            </table>
 
-          </table>
+          </div>
 
-        </div>
-
-      </div>
+        ))}
+              </div>
 
     </DeanLayout>
 
@@ -364,9 +537,16 @@ function DeanFacultyView() {
 
 }
 
+// =======================================
+// INFO ROW COMPONENT
+// =======================================
+
 function InfoRow({
+
   title,
+
   value
+
 }) {
 
   return (
@@ -374,15 +554,25 @@ function InfoRow({
     <tr>
 
       <td
-        style={infoTitle}
+        style={{
+          padding: "12px",
+          width: "240px",
+          fontWeight: "700",
+          color: "#374151",
+          borderBottom: "1px solid #e5e7eb"
+        }}
       >
         {title}
       </td>
 
       <td
-        style={infoValue}
+        style={{
+          padding: "12px",
+          borderBottom: "1px solid #e5e7eb",
+          color: "#111827"
+        }}
       >
-        {value}
+        {value || "-"}
       </td>
 
     </tr>
@@ -391,44 +581,35 @@ function InfoRow({
 
 }
 
-const infoTitle = {
-
-  padding: "12px",
-
-  fontWeight: "700",
-
-  width: "220px",
-
-  color: "#374151"
-
-};
-
-const infoValue = {
-
-  padding: "12px",
-
-  color: "#111827"
-
-};
+// =======================================
+// TABLE STYLES
+// =======================================
 
 const thStyle = {
 
-  padding: "15px",
+  padding: "14px",
 
   textAlign: "left",
 
-  fontWeight: "600"
+  borderBottom: "2px solid #cbd5e1",
+
+  color: "#1e3a8a",
+
+  fontWeight: "700",
+
+  fontSize: "15px"
 
 };
 
 const tdStyle = {
 
-  padding: "15px",
+  padding: "14px",
 
-  borderBottom:
-    "1px solid #e5e7eb",
+  borderBottom: "1px solid #e5e7eb",
 
-  verticalAlign: "top"
+  verticalAlign: "top",
+
+  fontSize: "14px"
 
 };
 

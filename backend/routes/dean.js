@@ -11,12 +11,12 @@ const {
   getFacultySubmissionById,
 
   getHodSubmissions,
+  getHodSubmissionById,
 
   approveSubmission,
   rejectSubmission
-} = require(
-  "../controllers/deanController"
-);
+
+} = require("../controllers/deanController");
 
 const {
   protect
@@ -72,6 +72,15 @@ router.get(
   getHodSubmissions
 );
 
+// ==============================
+// VIEW SINGLE HOD SUBMISSION
+// ==============================
+
+router.get(
+  "/hod-submission/:id",
+  protect,
+  getHodSubmissionById
+);
 // Approve Submission
 
 router.put(

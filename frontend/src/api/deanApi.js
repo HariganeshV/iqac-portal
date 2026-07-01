@@ -7,12 +7,41 @@ import API from "./axios";
 export const getFacultySubmissions = () =>
   API.get("/dean/faculty-submissions");
 
+export const getFacultySubmissionById = (id) =>
+  API.get(`/dean/faculty-submission/${id}`);
+
 // ==============================
 // HOD REVIEW
 // ==============================
 
-export const getHodSubmissions = () =>
-  API.get("/dean/hod-submissions");
+export const getHodSubmissions = (
+
+  status = "Pending Dean Review",
+
+  department = ""
+
+) =>
+
+  API.get(
+
+    "/dean/hod-submissions",
+
+    {
+
+      params: {
+
+        status,
+
+        department
+
+      }
+
+    }
+
+  );
+
+export const getHodSubmissionById = (id) =>
+  API.get(`/dean/hod-submission/${id}`);
 
 // ==============================
 // APPROVE / REJECT
@@ -42,7 +71,7 @@ export const getMyDeanSubmissions = () =>
   API.get("/dean/my");
 
 // ==============================
-// PDF
+// PDF DOWNLOAD
 // ==============================
 
 export const downloadFacultyPDF = (id) =>
@@ -53,5 +82,10 @@ export const downloadFacultyPDF = (id) =>
     }
   );
 
-  export const getFacultySubmissionById = (id) =>
-  API.get(`/dean/faculty-submission/${id}`);
+export const downloadHodPDF = (id) =>
+  API.get(
+    `/submissions/download/${id}`,
+    {
+      responseType: "blob"
+    }
+  );

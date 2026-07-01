@@ -18,7 +18,10 @@ function DeanFacultyReview() {
 
     const { user } = useAuth();
     const [selectedDepartment, setSelectedDepartment] =
-  useState("");
+  useState(() => localStorage.getItem("deanDepartment") || "");
+
+const [selectedQuarter, setSelectedQuarter] =
+  useState(() => localStorage.getItem("deanQuarter") || "");
   
   const [submissions, setSubmissions] =
     useState([]);
@@ -122,40 +125,25 @@ const departments =
 // ==========================
 
 const filteredSubmissions =
+  submissions.filter((submission) => {
 
-  selectedDepartment
+    const departmentMatch =
+      selectedDepartment === "" ||
+      submission.department ===
+        selectedDepartment;
 
-    ?
+    const quarterMatch =
+      selectedQuarter === "" ||
+      submission.quarter ===
+        selectedQuarter;
 
-    submissions.filter(
+    return (
+      departmentMatch &&
+      quarterMatch
+    );
 
-      (submission) =>
+  });
 
-        submission.department ===
-
-        selectedDepartment
-
-    )
-
-    :
-
-    [];
-    console.log("Selected:", selectedDepartment);
-
-console.log(
-  "Departments from API:",
-  submissions.map(s => s.department)
-);
-
-console.log(
-  "Filtered:",
-  filteredSubmissions
-);
-console.log("User:", user);
-
-console.log("School:", user?.school);
-
-console.log("Submissions:", submissions);
   return (
 
     <DeanLayout>
@@ -195,15 +183,16 @@ console.log("Submissions:", submissions);
 
     value={selectedDepartment}
 
-    onChange={(e) =>
+    onChange={(e)=>{
 
-      setSelectedDepartment(
+  setSelectedDepartment(e.target.value);
 
-        e.target.value
+  localStorage.setItem(
+    "deanDepartment",
+    e.target.value
+  );
 
-      )
-
-    }
+}}
 
     style={{
 
@@ -252,6 +241,66 @@ console.log("Submissions:", submissions);
   </select>
 
 </div>
+
+<div
+  style={{
+    marginBottom: "30px"
+  }}
+>
+
+  <label
+    style={{
+      fontWeight: "600",
+      display: "block",
+      marginBottom: "10px"
+    }}
+  >
+    Select Quarter
+  </label>
+
+  <select
+    value={selectedQuarter}
+    onChange={(e)=>{
+
+  setSelectedQuarter(e.target.value);
+
+  localStorage.setItem(
+    "deanQuarter",
+    e.target.value
+  );
+
+}}
+    style={{
+      width: "220px",
+      padding: "12px",
+      borderRadius: "8px",
+      border: "1px solid #d1d5db"
+    }}
+  >
+
+    <option value="">
+      -- Select Quarter --
+    </option>
+
+    <option value="Q1">
+      Quarter 1 (Q1)
+    </option>
+
+    <option value="Q2">
+      Quarter 2 (Q2)
+    </option>
+
+    <option value="Q3">
+      Quarter 3 (Q3)
+    </option>
+
+    <option value="Q4">
+      Quarter 4 (Q4)
+    </option>
+
+  </select>
+
+</div>
   <p
     style={{
       color: "#6b7280",
@@ -262,7 +311,8 @@ console.log("Submissions:", submissions);
     Approved by HOD
   </p>
 
-{selectedDepartment === "" ? (
+{selectedDepartment === "" ||
+selectedQuarter === "" ? (
 
   <div
     style={{
@@ -273,7 +323,7 @@ console.log("Submissions:", submissions);
       color: "#6b7280"
     }}
   >
-    Please select a department.
+    Please select Department and Quarter.
   </div>
 
 ) : filteredSubmissions.length === 0 ? (

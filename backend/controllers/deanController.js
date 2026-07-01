@@ -135,35 +135,107 @@ exports.submitDeanSubmission =
 // VIEW HOD SUBMISSIONS
 // ==============================
 
-exports.getHodSubmissions =
-  async (req, res) => {
-    try {
-      const submissions =
-        await Submission.find({
-          role: "hod",
-          status:
-            "Pending Dean Review"
-        })
-          .populate(
-            "submittedBy",
-            "name email school department designation employeeId"
-          )
-          .sort({
-            createdAt: -1
-          });
+exports.getHodSubmissions = async (req, res) => {
 
-      res.status(200).json({
-        success: true,
-        count: submissions.length,
-        submissions
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message
-      });
+  try {
+
+    console.log("Dean User :", req.user);
+
+    const filter = {
+
+  role: "hod",
+
+  school: req.user.school
+
+};
+
+// Status Filter
+
+if (req.query.status) {
+
+  filter.status = req.query.status;
+
+} else {
+
+  filter.status = "Pending Dean Review";
+
+}
+
+// Department Filter
+
+if (req.query.department) {
+
+  filter.department = req.query.department;
+
+}
+
+// Quarter Filter
+
+if (req.query.quarter) {
+
+  filter.quarter = req.query.quarter;
+
+}
+
+    // Department Filter
+
+    if (req.query.department) {
+
+      filter.department = req.query.department;
+
     }
-  };
+
+    // Quarter Filter
+
+    if (req.query.quarter) {
+
+      filter.quarter = req.query.quarter;
+
+    }
+
+    const submissions = await Submission.find(filter)
+
+      .populate(
+
+        "submittedBy",
+
+        "name email school department designation employeeId"
+
+      )
+
+      .sort({
+
+        department: 1,
+
+        createdAt: -1
+
+      });
+
+    res.status(200).json({
+
+      success: true,
+
+      count: submissions.length,
+
+      submissions
+
+    });
+
+  }
+
+  catch (error) {
+
+    res.status(500).json({
+
+      success: false,
+
+      message: error.message
+
+    });
+
+  }
+
+};
 
 // ==============================
 // FACULTY REVIEW
@@ -311,6 +383,9 @@ exports.rejectSubmission =
       });
     }
   };
+// ==============================
+// GET FACULTY SUBMISSION BY ID
+// ==============================
 
   exports.getFacultySubmissionById = async (req, res) => {
 
@@ -340,6 +415,52 @@ exports.rejectSubmission =
     res.status(500).json({
       success:false,
       message:error.message
+    });
+
+  }
+
+};
+
+// ==============================
+// GET HOD SUBMISSION BY ID
+// ==============================
+
+exports.getHodSubmissionById = async (req, res) => {
+
+  try {
+
+    const submission = await Submission.findById(req.params.id);
+
+    if (!submission) {
+
+      return res.status(404).json({
+
+        success: false,
+
+        message: "Submission not found"
+
+      });
+
+    }
+
+    res.status(200).json({
+
+      success: true,
+
+      submission
+
+    });
+
+  }
+
+  catch (error) {
+
+    res.status(500).json({
+
+      success: false,
+
+      message: error.message
+
     });
 
   }
